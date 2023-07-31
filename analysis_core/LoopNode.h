@@ -14,56 +14,27 @@ private:
     double (*f)(std::vector<double>);
     std::vector<bool> (*g)(std::vector<double>);
     std::vector <Node*> lefs;
-    TRandom3 rand3; 
+    TRandom3 rand3;
 
 protected:
     std::vector<myParticle*> inputParticles;
 
 public:
-    LoopNode(std::vector<bool> (*func)(std::vector<double>), Node* l, std::string s){
-        g=func;
-        f=NULL;
-        symbol=s;
-        left=l;
-        lefs.push_back(l);
-        right=NULL;
-    }
-    LoopNode(double (*func)(std::vector<double>), Node* l, std::string s){
-        f=func;
-        g=NULL;
-        symbol=s;
-        left=l;
-        lefs.push_back(l);
-        right=NULL;
-    }
-    LoopNode(double (*func)(std::vector<double>), std::vector<Node*> ls, std::string s){
-        f=func;
-        g=NULL;
-        symbol=s;
-        left=ls[0]; // just in case if someone asks the list of particles for example
-        lefs=ls;
-        right=NULL;
-    }
-    
+    LoopNode(std::vector<bool> (*func)(std::vector<double>), Node* l, std::string s);
+    LoopNode(double (*func)(std::vector<double>), Node* l, std::string s);
+    LoopNode(double (*func)(std::vector<double>), std::vector<Node*> ls, std::string s);
+
     static double getRand(); //{return (rand3.Uniform(0,1) );}
-    virtual void getParticles(std::vector<myParticle *>* particles) override{
-         left->getParticles(particles);
-    }
+    virtual void getParticles(std::vector<myParticle *>* particles) override;
 
-    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override{
-        left->getParticlesAt(particles,index);
-    }
+    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override;
 
-    virtual void Reset() override{
-        left->Reset();
-    }
+    virtual void Reset() override;
 
     virtual double evaluate(AnalysisObjects* ao) override;
-    
-    virtual ~LoopNode() {
-        if (left!=NULL) delete left;
-    }
-    
+
+    virtual ~LoopNode();
+
 };
 
 double aveof(std::vector<double> xlist);

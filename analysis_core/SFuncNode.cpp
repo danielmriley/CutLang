@@ -18,20 +18,219 @@
 #define DEBUG(a)
 #endif
 
+
+    SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, float val),
+              float val,
+              std::string s,
+              Node *objectNodeA, Node *objectNodeB){
+        f=func;
+        g1=NULL;
+        g2=NULL;
+        g3=NULL;
+        g4=NULL;
+        g5=NULL;
+        g6=NULL;
+        ext=false;
+        value=val;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+        DEBUG("** SF node with no left right nodes.\n");
+
+}
+    SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, float val),
+              Node *child, std::string s,
+              Node *objectNodeA, Node *objectNodeB){
+        f=func;
+        g1=NULL;
+        g2=NULL;
+        g3=NULL;
+        g4=NULL;
+        g5=NULL;
+        g6=NULL;
+        ext=false;
+        symbol=s;
+        left=child;
+        right=NULL;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+        DEBUG("** SF node with child node as left.\n");
+}
+
+//------------------------- g1 with userfuncA
+    SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, std::vector<TLorentzVector> (*gunc) (std::vector<TLorentzVector> jets, int p1)),
+              std::vector<TLorentzVector> (*tunc) (std::vector<TLorentzVector> jets, int p1),
+                      int id,
+               std::string s,
+               Node *objectNodeA, Node *objectNodeB){
+        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
+        f=NULL;
+        g3=NULL;
+        g2=NULL;
+        g4=NULL;
+        g5=NULL;
+        g6=NULL;
+        g1=func;
+        h1=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+}
+SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double (*gunc) (std::vector<TLorentzVector> jets)),
+              double (*tunc) (std::vector<TLorentzVector> jets),
+                      int id,
+               std::string s,
+               Node *objectNodeA, Node *objectNodeB){
+        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
+        f=NULL;
+        g6=NULL;
+        g5=NULL;
+        g4=NULL;
+        g3=NULL;
+        g1=NULL;
+        g2=func;
+        h2=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+
+}
+SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double (*gunc) (std::vector<TLorentzVector> jets, TVector2 amet)),
+              double (*tunc) (std::vector<TLorentzVector> jets, TVector2 amet),
+                      int id,
+               std::string s,
+               Node *objectNodeA, Node *objectNodeB){
+       DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
+        f=NULL;
+        g1=NULL;
+        g2=NULL;
+        g4=NULL;
+        g5=NULL;
+        g6=NULL;
+        g3=func;
+        h3=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+
+}
+SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, TLorentzVector alv, double (*gunc) (std::vector<TLorentzVector> jets, TLorentzVector amet)),
+              double (*tunc) (std::vector<TLorentzVector> jets, TLorentzVector amet),
+                      int id,
+               std::string s,
+               std::vector<myParticle*> input,
+               Node *objectNodeA, Node *objectNodeB){
+        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
+        f=NULL;
+        g1=NULL;
+        g2=NULL;
+        g3=NULL;
+        g5=NULL;
+        g6=NULL;
+        g4=func;
+        h4=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        inputParticlesA=input;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+}
+SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, TLorentzVector a1, TLorentzVector a2, TLorentzVector b1, double (*gunc) (TLorentzVector lep1, TLorentzVector lep2, TLorentzVector amet)),
+              double (*tunc) (TLorentzVector lep1, TLorentzVector lep2, TLorentzVector amet),
+                      int id,
+               std::string s,
+               std::vector<myParticle*> input1,
+               std::vector<myParticle*> input2,
+               std::vector<myParticle*> input3,
+               Node *objectNodeA, Node *objectNodeB){
+        DEBUG("*****************************************EXTERN SF T5:"<<s <<"\n");
+        f=NULL;
+        g1=NULL;
+        g2=NULL;
+        g3=NULL;
+        g4=NULL;
+        g6=NULL;
+        g5=func;
+        h5=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        inputParticlesA=input1;
+        inputParticlesB=input2;
+        inputParticlesC=input3;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+}
+//--------------------------------g6
+SFuncNode::SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double pt1, double pt2, double m1, double pt3, double (*gunc)(double a1, double a2, double a3, double a4)),
+              double (*tunc) (double a1, double a2, double a3, double a4),
+                      int id,
+               std::string s,
+                  double apt1, double apt2, double apt3, double apt4,
+               Node *objectNodeA, Node *objectNodeB){
+        DEBUG("*****************************************EXTERN SF T5:"<<s <<"\n");
+        f=NULL;
+        g1=NULL;
+        g2=NULL;
+        g3=NULL;
+        g4=NULL;
+        g5=NULL;
+        g6=func;
+        h6=tunc;
+        ext=true;
+        type=id;
+        symbol=s;
+        left=NULL;
+        right=NULL;
+        pv1=apt1;
+        pv2=apt2;
+        pv3=apt3;
+        pv4=apt4;
+ //      inputParticlesA=input1;
+ //      inputParticlesB=input2;
+ //      inputParticlesC=input3;
+        userObjectA = objectNodeA;
+        userObjectB = objectNodeB;
+}
+
+void SFuncNode::getParticles(std::vector<myParticle *>* particles) {}
+void SFuncNode::getParticlesAt(std::vector<myParticle *>* particles, int index) {}
+void SFuncNode::setSymbol(string s) { symbol=s; }
+SFuncNode::~SFuncNode() {}
+
 double SFuncNode::evaluate(AnalysisObjects* ao) {
 
-        DEBUG("*******In SF,"<<symbol<<" Extern True/False:"<< ext <<"\n"); 
+        DEBUG("*******In SF,"<<symbol<<" Extern True/False:"<< ext <<"\n");
         if(userObjectA && !ext) {
-           DEBUG("\t start user obj A type:"<< ((ObjectNode*)userObjectA)->type<<"\n"); 
+           DEBUG("\t start user obj A type:"<< ((ObjectNode*)userObjectA)->type<<"\n");
 
            userObjectA->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
            value=((ObjectNode*)userObjectA)->type; //ngu added this as a temporary solution as he uses 2nd creator
-           DEBUG("user obj A done.\n"); 
+           DEBUG("user obj A done.\n");
         }
         if(userObjectB && !ext) {
-           DEBUG("\t B user obj\n"); 
+           DEBUG("\t B user obj\n");
            userObjectB->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
-           DEBUG("user obj B done.\n"); 
+           DEBUG("user obj B done.\n");
         }
         dbxParticle *aPart= new dbxParticle;
         dbxParticle *bPart= new dbxParticle;
@@ -42,7 +241,7 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
         if ( inputParticlesA.size()>0 ){
            aPart->Reset();
            TLorentzVector ametlv;
-           DEBUG("\n input particles A "); 
+           DEBUG("\n input particles A ");
            for(vector<myParticle*>::iterator i=inputParticlesA.begin();i!=inputParticlesA.end();i++){
                DEBUG("type:"<<(*i)->type<<" index:"<< (*i)->index<< " addr:"<<*i<<  "\t name:"<< (*i)->collection<<"\n");
               int atype=(*i)->type;
@@ -50,10 +249,10 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
              string ac=(*i)->collection;
 
              if (atype==7) ac="MET";
-               unikID+=ac;             
-               unikID+=ai;             
+               unikID+=ac;
+               unikID+=ai;
 
-               switch (atype) { 
+               switch (atype) {
 		  case 10:  aPart->setTlv( aPart->lv()+ao->truth[ac].at(ai).lv()  );   break;
                   case 12:  aPart->setTlv( aPart->lv()+ao->muos[ac].at(ai).lv()   );   break;
                   case  1:  aPart->setTlv( aPart->lv()+ao->eles[ac].at(ai).lv()   );   break;
@@ -78,17 +277,17 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
         if ( inputParticlesB.size()>0 ){
            bPart->Reset();
            TLorentzVector ametlv;
-           DEBUG("\n input particles B "); 
+           DEBUG("\n input particles B ");
            for(vector<myParticle*>::iterator i=inputParticlesB.begin();i!=inputParticlesB.end();i++){
                DEBUG("type:"<<(*i)->type<<" index:"<< (*i)->index<< " addr:"<<*i<<  "\t name:"<< (*i)->collection<<"\n");
               int atype=(*i)->type;
                 int ai=(*i)->index;
              string ac=(*i)->collection;
              if (atype==7) ac="MET";
-               unikID+=ac;             
-               unikID+=ai;             
+               unikID+=ac;
+               unikID+=ai;
 
-               switch (atype) { 
+               switch (atype) {
 		   case 10:  bPart->setTlv(  bPart->lv()+ao->truth[ac].at(ai).lv() );  break;
                    case 12:  bPart->setTlv(  bPart->lv()+ao->muos[ac].at(ai).lv() );   break;
                    case  1:  bPart->setTlv(  bPart->lv()+ao->eles[ac].at(ai).lv() );   break;
@@ -112,17 +311,17 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
         if ( inputParticlesC.size()>0 ){
            cPart->Reset();
            TLorentzVector ametlv;
-           DEBUG("\n input particles C "); 
+           DEBUG("\n input particles C ");
            for(vector<myParticle*>::iterator i=inputParticlesC.begin();i!=inputParticlesC.end();i++){
                DEBUG("type:"<<(*i)->type<<" index:"<< (*i)->index<< " addr:"<<*i<<  "\t name:"<< (*i)->collection<<"\n");
               int atype=(*i)->type;
                 int ai=(*i)->index;
              string ac=(*i)->collection;
              if (atype==7) ac="MET";
-               unikID+=ac;             
-               unikID+=ai;             
+               unikID+=ac;
+               unikID+=ai;
 
-             switch (atype) { 
+             switch (atype) {
 		   case 10:  cPart->setTlv(  cPart->lv()+ao->truth[ac].at(ai).lv() );   break;
                    case 12:  cPart->setTlv(  cPart->lv()+ao->muos[ac].at(ai).lv() );   break;
                    case  1:  cPart->setTlv(  cPart->lv()+ao->eles[ac].at(ai).lv() );   break;
@@ -157,7 +356,7 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
                      extkey+=type;
                      extkey+=unikID;
 
-             std::map< std::string, double >::iterator keyit; 
+             std::map< std::string, double >::iterator keyit;
 
               DEBUG("external user function evaluation. initial Key:"<< extkey<<"\n");
               double retval;
@@ -176,7 +375,7 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
                    delete bPart;
                    delete cPart;
                    return (BUFFERED_VALUES[extkey.Data()]);
-                } else { 
+                } else {
                    retval=(*g5)(ao, symbol, type, aPart->lv(), bPart->lv(), cPart->lv(), h5);
                    BUFFERED_VALUES.insert(std::pair<string, double >(extkey.Data(), retval));
                 }
@@ -193,7 +392,7 @@ double SFuncNode::evaluate(AnalysisObjects* ao) {
         delete aPart;
         delete bPart;
         delete cPart;
-        double arv=(*f)(ao, symbol, value);              
+        double arv=(*f)(ao, symbol, value);
         DEBUG("ARV="<<arv<<"\n");
         return arv;
 }
@@ -209,7 +408,7 @@ double getIndex(AnalysisObjects* ao, string s, float id){ // new internal functi
     DEBUG("STR:"<<s<<" Type:"<<pid<<" #Combos types:"<<ao->combos.size() << " #Table types:"<<ao->combosA.size()<<"\n");
     map <string,  indicesA  >::iterator itp;
     for (itp=ao->combosA.begin();itp!=ao->combosA.end();itp++){
-      DEBUG("#Combo typename:"<<itp->first<<"  Table  size:"<<itp->second.tableA.size() <<" maxRow:" 
+      DEBUG("#Combo typename:"<<itp->first<<"  Table  size:"<<itp->second.tableA.size() <<" maxRow:"
                               <<itp->second.max_row<< " maxCol:"<< itp->second.max_col <<"\n");
       std::vector< std::vector <int> > mytable= itp->second.tableA;
       for (int anidx=0; anidx < mytable.size(); anidx++) {
@@ -253,8 +452,8 @@ double count(AnalysisObjects* ao, string s, float id) {
      case combo_t:    if (ao->combosA.find(s)!=ao->combosA.end() ){
                            DEBUG(s<<" tableA max r,c:"<<ao->combosA.at(s).max_row <<" "<< ao->combosA.at(s).max_col<<"\n");
                            return (ao->combosA.at(s).max_row);
-                      } else { 
-                           DEBUG(s<<" Normal\n");    // to be continued     
+                      } else {
+                           DEBUG(s<<" Normal\n");    // to be continued
                            return (ao->combos.at(s).size() );
                       }
                       break;
@@ -288,7 +487,7 @@ double metsig(AnalysisObjects* ao, string s, float id){
     rotatedcov(npt,nphi,resopt(npt),resophi(npt),covxx,covyy,covxy);
     sumcovxx += covxx; sumcovyy += covyy; sumcovxy += covxy;
     ptx += sin(nphi)*npt; pty += cos(nphi)*npt;
-  }  
+  }
   for (int nj=0; nj<ao->muos.at("MUO").size(); nj++){
     nphi = ao->muos["MUO"].at(nj).lv().Phi();
     npt  = ao->muos["MUO"].at(nj).lv().Pt();
@@ -310,9 +509,9 @@ double metsig(AnalysisObjects* ao, string s, float id){
     sumcovxx += covxx; sumcovyy += covyy; sumcovxy += covxy;
     ptx += sin(nphi)*npt; pty += cos(nphi)*npt;
   }
- 
+
   det = sumcovxx * sumcovyy - sumcovxy * sumcovxy;
-  ncovxx =  sumcovyy/det; ncovyy = sumcovxx/det; ncovxy = -sumcovxy/det;        
+  ncovxx =  sumcovyy/det; ncovyy = sumcovxx/det; ncovxy = -sumcovxy/det;
   return ptx * ptx * ncovxx + pty * pty * ncovyy + 2 * ptx * pty * ncovxy;
 }
 
@@ -371,10 +570,10 @@ double userfuncA(AnalysisObjects* ao, string s, int id, std::vector<TLorentzVect
    }
 
 //   cout <<s<<"\n";
-//   if (retjets.size() < ao->jets.at(s).size()) 
-//       ao->jets.at(s).erase(ao->jets.at(s).begin(), ao->jets.at(s).begin()+ao->jets.at(s).size()-retjets.size()); 
+//   if (retjets.size() < ao->jets.at(s).size())
+//       ao->jets.at(s).erase(ao->jets.at(s).begin(), ao->jets.at(s).begin()+ao->jets.at(s).size()-retjets.size());
 //   ao->jets.at(s).resize(retjets.size());
-//   ao->jets.at(s).shrink_to_fit(); 
+//   ao->jets.at(s).shrink_to_fit();
 //   for (int ipart=0; ipart<retjets.size(); ipart++){
 //          ao->jets.at(s).at(ipart).setTlv( retjets[ipart] );
 //   }
@@ -451,7 +650,7 @@ std::vector<TLorentzVector> negsumobj(std::vector<TLorentzVector> myjets, int p1
  for (int i=0; i<myjets.size(); i++) {
   h1+=myjets[i];
  }
- 
+
  std::vector<TLorentzVector> retval;
  retval.push_back(-h1);
  return (retval);

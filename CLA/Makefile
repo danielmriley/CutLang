@@ -4,7 +4,7 @@ MAC     = Darwin
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
-TODAYDATE     = $(shell date)	
+TODAYDATE     = $(shell date)
 
 # we try to identify where the various subdirs (like CorrectionMethods) are
 SUBDIRLOC = $(shell test -d ../CLA && echo ../ || echo ./)
@@ -22,7 +22,7 @@ YACCV      = $(shell which yacc)
 FLEXV      = $(shell which flex)
 LEXEV      = $(shell which lex)
 
-CXX           = $(shell root-config --cxx) -g -O2 
+CXX           = $(shell root-config --cxx) -g -O2
 #-D_CLV_
 #-D__DEBUG__
 CXXFLAGS      =$(INCLUDES) -Wall -fPIC -Wunused-variable -Wsign-compare
@@ -31,7 +31,7 @@ LD            = $(shell root-config --ld) -stdlib=libstdc++
 SOFLAGS       = -shared
 
 CXXFLAGS     += $(ROOTCFLAGS)
-LIBS          = $(ROOTLIBS)  -lMinuit -L. -lDBXNtuple_cpp  -ldbx_electron_h -ldbx_tau_h -ldbx_muon_h -ldbx_photon_h -ldbx_jet_h -ldbxParticle_cpp -ldbx_truth_h -l dbx_track_h -ldelphesParticles_h -lz 
+LIBS          = $(ROOTLIBS)  -lMinuit -L. -lDBXNtuple_cpp  -ldbx_electron_h -ldbx_tau_h -ldbx_muon_h -ldbx_photon_h -ldbx_jet_h -ldbxParticle_cpp -ldbx_truth_h -l dbx_track_h -ldelphesParticles_h -lz
 GLIBS         = $(ROOTGLIBS)
 
 #LIBS += -lzstd -lCling -lpng -ltbb -lssl -lcrypto
@@ -64,9 +64,9 @@ ifneq (0, ${JUPY})
 	 LIBS += -lCling -lpng -ltbb -lssl -lcrypto
 endif
 
-ANLOBJS       = bp_a.o dump_a.o 
+ANLOBJS       = bp_a.o dump_a.o
 OBJS_1        = $(ANLOBJS) lhco.o lvl0.o DELPHES2.o fcc.o delphes.o atlasopen.o atlasopenR2.o AtlasTRT.o cmsod.o cmsod2.o AtlMin.o VLLMin.o CMSnanoAOD.o VLLBG3.o VLLMinSignal.o VLLg.o VLLf.o newpoet.o
-OBJS_2        = b.o l.o
+OBJS_2        = Parser.o Scanner.o driver.o semantic_checks.o external_functions.o
 
 ifneq ($(MACHINE), $(MAC))
 	cpargs = -pHr
@@ -94,11 +94,11 @@ endif
 	@echo lex:$(LEXV) flex:$(FLEXV) executable:$(LEXEXE)
 
 
-b.o : parse.y
-	$(BISEXE) -d -v -o b.cpp parse.y; $(CXX) $(CXXFLAGS) $(INCLUDES) -c b.cpp
+Parser.o : parse.y
+	$(BISEXE) -d -v -o Parser.cpp parser.y; $(CXX) $(CXXFLAGS) $(INCLUDES) -c Parser.cpp
 
-l.o : parse.l
-	$(LEXEXE) -s -o l.cpp parse.l ; $(CXX) $(INCLUDES) -c l.cpp
+Scanner.o : parse.l
+	$(LEXEXE) -s -o Scanner.cpp scanner.l ; $(CXX) $(INCLUDES) -c Scanner.cpp
 
 auxiliaries:
 	$(MAKE) -C $(SUBDIRLOC)analysis_core
@@ -121,10 +121,9 @@ $(ANLOBJS): %.o : %.cxx
 
 # clean
 clean:
-	rm -f *~ *.o *.so *.o~ *.d core DBX2analysis a.out CLA.exe _* b.* l.cpp 
+	rm -f *~ *.o *.so *.o~ *.d core DBX2analysis a.out CLA.exe _* b.* l.cpp
 	$(MAKE) -C $(SUBDIRLOC)analysis_core clean
 
 # clean everything including the auxiliaries we depend on
 cleanall: clean
 	$(MAKE) -C $(SUBDIRLOC)analysis_core clean
-

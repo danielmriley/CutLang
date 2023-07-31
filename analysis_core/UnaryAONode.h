@@ -14,49 +14,23 @@ class UnaryAONode : public Node{
 private:
     double (*f)(double);
 public:
-    UnaryAONode(double (*func)(double), Node* l, std::string s){
-        f=func;
-        symbol=s;
-        left=l;
-        right=NULL;
-    }
-    
-    virtual void getParticles(std::vector<myParticle *>* particles) override{
-         left->getParticles(particles);
-    }
+    UnaryAONode(double (*func)(double), Node* l, std::string s);
 
-    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override{
-        left->getParticlesAt(particles,index);
-    }
+    virtual void getParticles(std::vector<myParticle *>* particles) override;
 
-    virtual void Reset() override{
-        left->Reset();
-    }
+    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override;
 
-    virtual double evaluate(AnalysisObjects* ao) override {
-        return (*f)(left->evaluate(ao));
-    }
-    
-    virtual ~UnaryAONode() {
-        if (left!=NULL) delete left;
-    }
-    
+    virtual void Reset() override;
+
+    virtual double evaluate(AnalysisObjects* ao) override;
+
+    virtual ~UnaryAONode();
+
 };
-double unaryMinu(double left) {
-    return -left;
-}
-double hstep(double x){
-	if(x>0) {return 1;}
-	else return 0;
-}
-double delta(double x){
-	if(x==0) {return 1;}
-	else return 0;
-}
-
-double LogicalNot(double condition){
-        return (double)(!(condition));
-}
+double unaryMinu(double left);
+double hstep(double x);
+double delta(double x);
+double LogicalNot(double condition);
 
 //double COS SIN TAN ALREADY EXIST
 #endif /* UnaryAONode_h */

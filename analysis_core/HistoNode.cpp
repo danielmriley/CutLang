@@ -11,6 +11,44 @@
 
 using namespace std;
 
+HistoNode1D::HistoNode1D( std::string id,std::string desc,int n, float l1, float l2,Node* l){
+    this->id=id;
+    Desciption=desc;
+    lowerLimitx=l1;
+    upperLimitx=l2;
+    binsx=n;
+    symbol="histo "+id+","+Desciption+","+std::to_string(l1)+","+std::to_string(l2)+","+std::to_string(n);
+    ahisto1 = new TH1D(id.data(), Desciption.data(), binsx, lowerLimitx, upperLimitx);
+    left=l;
+    right=NULL;
+}
+HistoNode1D::HistoNode1D( std::string id,std::string desc, vector<float> ls, Node* l){
+    this->id=id;
+    Desciption=desc;
+    lowerLimitx=ls[0];
+    upperLimitx=ls[0];
+    binsx=ls.size();
+    double *xvals=(double *)malloc(binsx*sizeof(double) );
+//      cout <<"~~~~~~~~~~~~~~~VARIABLE BINS~~~~~~~~~~~~\n";
+    for (int jj=0; jj<binsx; jj++) {xvals[jj]=(double)ls[jj]; //cout << xvals[jj] << "\n";
+                                   }
+    symbol="histo "+id+","+Desciption+",variable bins";
+    ahisto1 = new TH1D(id.data(), Desciption.data(), binsx-1, xvals);
+    left=l;
+    right=NULL;
+    free(xvals);
+}
+void HistoNode1D::Reset() { left->Reset(); }
+
+void HistoNode1D::getParticles(std::vector<myParticle *>* particles) {
+     left->getParticles(particles);
+}
+void HistoNode1D::getParticlesAt(std::vector<myParticle *>* particles, int index) {}
+HistoNode1D::~HistoNode1D(){
+if (left!=NULL) delete left;
+if (right!=NULL) delete right;
+}
+
 double HistoNode1D::evaluate(AnalysisObjects* ao) {
                   this->getParticles(&inputParticles);
                   for (int ii=0; ii<inputParticles.size(); ii++){
@@ -44,8 +82,8 @@ double HistoNode1D::evaluate(AnalysisObjects* ao) {
                                                       ipartMax =(ao->constits).find(consname)->second.size();
                                                       DEBUG(consname<<" has "<<ipartMax<<" constituents\n");
                                                break;}
-                           
-                           
+
+
                                       default:
                                           std::cerr << "HN WRONG PARTICLE TYPE:"<<inputParticles[0]->type << std::endl; break;
                                    }
@@ -82,6 +120,69 @@ double HistoNode1D::evaluate(AnalysisObjects* ao) {
 };
 //-----
 
+HistoNode2D::HistoNode2D( std::string id,std::string desc,int nx, float xmin, float xmax, int ny, float ymin, float ymax, Node* l, Node* r){
+    this->id=id;
+    Desciption=desc;
+    lowerLimitx=xmin;
+    upperLimitx=xmax;
+lowerLimity=ymin;
+upperLimity=ymax;
+    binsx=nx;
+binsy=ny;
+    symbol="histo "+id+","+Desciption+","+std::to_string(xmin)+","+std::to_string(xmax)+","+std::to_string(nx)+","+std::to_string(ymin)+","+std::to_string(ymax)+","+std::to_string(ny);
+    ahisto2 = new TH2D(id.data(), Desciption.data(), binsx, lowerLimitx, upperLimitx, binsy, lowerLimity, upperLimity);
+    left=l;
+    right=r;
+}
+
+HistoNode2D::HistoNode2D( std::string id,std::string desc, vector<float> vx , int ny, float ymin, float ymax, Node* l, Node* r){
+    this->id=id;
+    Desciption=desc;
+    lowerLimitx=vx[0];
+    upperLimitx=vx[0];
+lowerLimity=ymin;
+upperLimity=ymax;
+    binsx=vx.size();
+    double *xvals=(double *)malloc(binsx*sizeof(double) );
+    for (int jj=0; jj<binsx; jj++) {xvals[jj]=(double)vx[jj]; //cout << xvals[jj] << "\n";
+                                   }
+binsy=ny;
+    symbol="histo "+id+","+Desciption+",variable,"+std::to_string(ymin)+","+std::to_string(ymax)+","+std::to_string(ny);
+    ahisto2 = new TH2D(id.data(), Desciption.data(), binsx-1, xvals, binsy, lowerLimity, upperLimity);
+    left=l;
+    right=r;
+    free(xvals);
+}
+HistoNode2D::HistoNode2D( std::string id,std::string desc, int nx, float xmin, float xmax,  vector<float> vy, Node* l, Node* r){
+    this->id=id;
+    Desciption=desc;
+    lowerLimity=vy[0];
+    upperLimity=vy[0];
+lowerLimitx=xmin;
+upperLimitx=xmax;
+    binsy=vy.size();
+    double *yvals=(double *)malloc(binsy*sizeof(double) );
+    for (int jj=0; jj<binsy; jj++) {yvals[jj]=(double)vy[jj]; //cout << yvals[jj] << "\n";
+                                   }
+binsx=nx;
+    symbol="histo "+id+","+Desciption+","+std::to_string(xmin)+","+std::to_string(xmax)+","+std::to_string(nx)+",variable";
+    ahisto2 = new TH2D(id.data(), Desciption.data(), binsx, lowerLimitx, upperLimitx, binsy-1, yvals );
+    left=l;
+    right=r;
+}
+
+
+void HistoNode2D::Reset() { left->Reset(); }
+
+void HistoNode2D::getParticles(std::vector<myParticle *>* particles) {
+     left->getParticles(particles);
+}
+void HistoNode2D::getParticlesAt(std::vector<myParticle *>* particles, int index) {}
+HistoNode2D::~HistoNode2D(){
+if (left!=NULL) delete left;
+if (right!=NULL) delete right;
+}
+
 double HistoNode2D::evaluate(AnalysisObjects* ao) {
 /*
                   this->getParticles(&inputParticles);
@@ -95,4 +196,3 @@ double HistoNode2D::evaluate(AnalysisObjects* ao) {
         	      ahisto2->Fill(value1, value2, ao->evt.user_evt_weight);
         	      return 1;
 };
-

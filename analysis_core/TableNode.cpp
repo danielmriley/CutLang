@@ -22,10 +22,67 @@
 #endif
 
 
+    TableNode::TableNode(double (*func)(double, AnalysisObjects*),
+              Node* l, std::pair<std::vector<float>, bool> tabe, std::string s){
+        f=func;
+        symbol=s;
+        left=l;
+        left2=NULL;
+        errors=tabe.second;
+        right=NULL;
+        if (errors){
+          for (unsigned int ii=0; ii<tabe.first.size(); ii+=5){
+           atable.push_back( tabe.first[ii]);
+           errtable.push_back( tabe.first[ii+1]);
+           errtable.push_back( tabe.first[ii+2]);
+           atable.push_back( tabe.first[ii+3]);
+           atable.push_back( tabe.first[ii+4]);
+          }
+        } else {
+          atable=tabe.first;
+        }
+    }
+    TableNode::TableNode(double (*func)(double, AnalysisObjects*),
+              Node* l, Node* l2, std::pair<std::vector<float>, bool> tabe, std::string s){
+        f=func;
+        symbol=s;
+        left=l;
+        left2=l2;
+        errors=tabe.second;
+        right=NULL;
+        if (errors){
+          for (unsigned int ii=0; ii<tabe.first.size(); ii+=7){
+           atable.push_back( tabe.first[ii]);
+           errtable.push_back( tabe.first[ii+1]);
+           errtable.push_back( tabe.first[ii+2]);
+           atable.push_back( tabe.first[ii+3]);
+           atable.push_back( tabe.first[ii+4]);
+           atable.push_back( tabe.first[ii+5]);
+           atable.push_back( tabe.first[ii+6]);
+          }
+        } else {
+          atable=tabe.first;
+        }
+    }
+
+ void TableNode::getParticles(std::vector<myParticle *>* particles) {
+      left->getParticles(particles);
+}
+
+ void TableNode::getParticlesAt(std::vector<myParticle *>* particles,int index) {
+    left->getParticlesAt(particles,index);
+}
+ void TableNode::Reset() {
+    left->Reset();
+}
+ TableNode::~TableNode() {
+    if (left!=NULL) delete left;
+}
+
 //---------EVALUATE---------
 double TableNode::evaluate(AnalysisObjects* ao) {
             double aval=left->evaluate(ao);
-            double bval, tval; 
+            double bval, tval;
             bool range_found=false;
             int it;
 
@@ -38,9 +95,9 @@ double TableNode::evaluate(AnalysisObjects* ao) {
                 DEBUG(" tval:"<<tval<<"\n");
                 it=(it/3);
                 break;
-               } 
+               }
               }
-            if (!range_found) {std::cerr << "Specified 1st value "<< aval <<" is out of table range! Setting coeff to ZERO.\n"; 
+            if (!range_found) {std::cerr << "Specified 1st value "<< aval <<" is out of table range! Setting coeff to ZERO.\n";
                                tval=0;}
             }else{ //2D
              DEBUG("\nTABLE evaluating second function\n");
@@ -63,7 +120,7 @@ double TableNode::evaluate(AnalysisObjects* ao) {
                   bval=left2->evaluate(ao);
                   pippo->setParticleIndex(0,   6213);
              } else bval=left2->evaluate(ao);
-                   
+
              DEBUG("\naval:"<<aval<< " bval:"<<bval<<"\t");
              for (it=0; it<atable.size(); it+=5){ // 5 is for 2D only. value, min, max, min2, max2.
                if (aval>=atable[it+1] && aval<atable[it+2] && bval>=atable[it+3] && bval<atable[it+4]){
@@ -72,9 +129,9 @@ double TableNode::evaluate(AnalysisObjects* ao) {
                 DEBUG(" tval:"<<tval<<"\n");
                 it=(it/5);
                 break;
-               } 
+               }
               }
-             
+
             if (!range_found) {std::cerr << "Specified 1st:"<< aval << " or 2nd:"<< bval
                                          <<" value is out of table range! Setting coeff to ZERO.\n";
                                tval=0;}
@@ -89,7 +146,7 @@ double TableNode::evaluate(AnalysisObjects* ao) {
                      hesap+="?gaus(0):gaus(3)";
              TF1 *f4 = new TF1("f4",hesap,0,1);
              f4->SetParameters(Area,tval,sigleft,Area,tval,sigright);
-             DEBUG("err range:"<<sigleft<<","<< sigright<<" modified tval:"<<f4->GetRandom()<<"\n"); 
+             DEBUG("err range:"<<sigleft<<","<< sigright<<" modified tval:"<<f4->GetRandom()<<"\n");
             }
 
     return (*f)(tval, ao);

@@ -15,6 +15,7 @@
 #include "analysis_core.h"
 #include "dbx_a.h"
 
+
 //#define _CLV_
 
 #ifdef _CLV_
@@ -23,16 +24,16 @@
 #define DEBUG(a)
 #endif
 
-extern int yyparse(list<string> *parts,map<string,Node*>* NodeVars,map<string,vector<myParticle*> >* ListParts,map<int,Node*>* NodeCuts,
-                                       map<int,Node*>* BinCuts, map<string,Node*>* ObjectCuts, vector<string>* Initializations, 
-                                       vector<int>* TRGValues, map<string,pair<vector<float>, bool> >* ListTables,
-                                       map<string, vector<cntHisto> >*cntHistos, map<int, vector<string> > *systmap);
+// extern int yyparse(list<string> *parts,map<string,Node*>* NodeVars,map<string,vector<myParticle*> >* ListParts,map<int,Node*>* NodeCuts,
+//                                        map<int,Node*>* BinCuts, map<string,Node*>* ObjectCuts, vector<string>* Initializations,
+//                                        vector<int>* TRGValues, map<string,pair<vector<float>, bool> >* ListTables,
+//                                        map<string, vector<cntHisto> >*cntHistos, map<int, vector<string> > *systmap);
 
-extern FILE* yyin;
+// extern FILE* yyin;
 extern int cutcount;
 extern int bincount;
 extern int yylineno;
-extern char * yytext;
+// extern char * yytext;
 extern TTreeReader *ttreader;
 
 
@@ -47,11 +48,11 @@ int BPdbxA::getInputs(std::string aname) {
 }
 
 int BPdbxA::plotVariables(int sel) {
- return 0;  
+ return 0;
 }
 
 //--------------------------
-int BPdbxA:: readAnalysisParams() {
+int BPdbxA::readAnalysisParams() {
   int retval=0;
    systematicsRun=false;
 
@@ -84,7 +85,7 @@ int BPdbxA:: readAnalysisParams() {
 //     cout << tempLine<<"\n";
        if (tempLine.size() < 3) continue; // remove the junk
 
-//-------------tokenize with space or tab 
+//-------------tokenize with space or tab
        std::istringstream iss(tempLine);
        std::vector<std::string> resultstr((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
        if (resultstr.size() < 1) continue;
@@ -95,7 +96,7 @@ int BPdbxA:: readAnalysisParams() {
 //                cout << resultstr[ic] <<".\n";
                   toplam+=resultstr[ic];
                   if (ic<resultstr.size()-1) toplam+=" ";
-       }              
+       }
 
 //---------obj
        if ((firstword == "obj") || (firstword == "object") ) {
@@ -138,7 +139,7 @@ int BPdbxA:: readAnalysisParams() {
             con1+=" >= ";
             con1+=resultstr[resultstr.size()-1];
             binCL.push_back(con1.Data());
-            
+
            } else binCL.push_back(toplam); // no magic
            continue;
        }
@@ -212,18 +213,59 @@ int BPdbxA:: readAnalysisParams() {
 // ---------------------------read CutLang style cuts using lex/yacc
        NameInitializations={" "," "};
        TRGValues={1,0,0,0,0};
-       yyin=fopen(CardName,"r");
-       if (yyin==NULL) { cout << "Cardfile "<<CardName<<" has problems, please check\n";}
+
+       std::cout << "CARDNAME: " << CardName << "\n";
+       std::ifstream fin(CardName);
+//       if (yyin==NULL) { cout << "Cardfile "<<CardName<<" has problems, please check\n";}
        cutcount=0;
        bincount=0;
-       cout <<"==Parsing started:\t";
-       retval=yyparse(&parts,&NodeVars,&ListParts,&NodeCuts, &BinCuts, &ObjectCuts, &NameInitializations, &TRGValues, &ListTables, &cntHistos, &systmap);
-       cout <<"\t Parsing finished.==\n";
+
+       adl::Driver drv(&fin);
+       retval = drv.parse();
+
+       // New semantic checks and fill cutlang data structures.
+       if(retval == 0) std::cout << "Parsing successful!\n";
+
+       if(retval == 0) std::cout << "ast.size(): " << drv.ast.size() << "\n";
+       if(retval == 0) { drv.setTables(); }
+       else std::cerr << "Failed Parsing()\n";
+       // if(retval == 0) for(auto d: drv.objectTable) std::cout << "o: " << d.first << " : " << d.second << "\n";
+       // if(retval == 0) for(auto d: drv.definitionTable) std::cout << "d: " << d << "\n";
+       // if(retval == 0) for(auto d: drv.regionTable) std::cout << "r: " << d << "\n";
+
+       if(retval == 0) { adl::checkDecl(drv); }
+       else std::cerr << "Failed setTables()\n";
+
+       if(retval == 0) { adl::typeCheck(drv); }
+       else std::cerr << "Failed checkDecl()\n";
+
+       if(retval == 0) { drv.visitAST(adl::printAST); } // run "dot -Tpdf ast.dot -o ast.pdf" to create a PDF
+       else std::cerr << "Failed typeCheck()\n";
+
+       if(retval == 0) { adl::printFlowChart(drv); } // run "dot -Tpdf fc.dot -o fc.pdf" to create a PDF
+       else std::cerr << "Failed printAST()\n";
+
+       if(retval == 0) {
+         drv.ast2cuts(&parts,&NodeVars,&ListParts,&NodeCuts,
+                      &BinCuts, &ObjectCuts,
+                      &NameInitializations, &TRGValues,
+                      &ListTables, &cntHistos, &systmap);
+       }
+       // if(res == 0) for(auto d: drv.objectTable) std::cout << "o: " << d << "\n";
+       // if(res == 0) for(auto d: drv.definitionTable) std::cout << "d: " << d << "\n";
+       // if(res == 0) for(auto d: drv.regionTable) std::cout << "r: " << d << "\n";
+       if(retval == 0) std::cout << "finished\n";
+       else std::cout << "ERROR\n";
+
+       // cout <<"==Parsing started:\t";
+       // retval=yyparse(&parts,&NodeVars,&ListParts,&NodeCuts, &BinCuts, &ObjectCuts, &NameInitializations, &TRGValues, &ListTables, &cntHistos, &systmap);
+       // cout <<"\t Parsing finished.==\n";
        if (retval){
          cout << "\nyyParse returns SYNTAX error in the input file.\n";
-         cout << "Offending text is: "<< yytext<<"\n";
-         exit (99); 
+         // cout << "Offending text is: "<< yytext<<"\n";
+         exit (99);
        }
+       int dr = 0;
        cout << "We have "<<NodeCuts.size() << " CutLang Cuts, "<<ObjectCuts.size()  <<" CutLang objects and ";
        cout << BinCuts.size() << " Bins\n";
        TRGe    = TRGValues[0];
@@ -232,30 +274,39 @@ int BPdbxA:: readAnalysisParams() {
        skip_histos  = (bool) TRGValues[3];
        systematics_bci = TRGValues[4];
 // ------------------------------------4 is reserved for systematics use.
-
+       std::cout << "Looking for bug " << dr++ << std::endl;
 //------------------------------------------------------------ACTIONS------------------------
 //---------save in the dir.
-    unsigned int effsize=NodeCuts.size()+1; // all is always there 
- 
+    unsigned int effsize=NodeCuts.size()+1; // all is always there
+    std::cout << "Looking for bug " << dr++ << std::endl;
+
 //-----create the eff histograms
        dbxA::defHistos( effsize);  // enough room
+       std::cout << "Looking for bug " << dr++ << std::endl;
 
 //----------put into output file as text
     TText cinfo(0,0,CutList2file.Data());
           cinfo.SetName("CLA2cuts");
           cinfo.Write();
+          std::cout << "Looking for bug " << dr++ << std::endl;
 
     TText info(0,0,DefList2file.Data());
           info.SetName("CLA2defs");
           info.Write();
+          std::cout << "Looking for bug " << dr++ << std::endl;
 
     TText oinfo(0,0,ObjList2file.Data());
           oinfo.SetName("CLA2Objs");
           oinfo.Write();
+          std::cout << "Looking for bug " << dr++ << std::endl;
 
 
        std::map<int, Node*>::iterator iter = NodeCuts.begin();
        while(iter != NodeCuts.end()) {
+         std::cout << "Looking for bug in nodecuts " << dr++ << std::endl;
+         std::cout << "ITR: " << iter->first << std::endl;
+         if(iter->second == nullptr) std::cout << "NODE IS NULLPTR" << std::endl;
+         std::cout << "**-- BP sees:" << iter->second->getStr().Data() << ".\n";
                 DEBUG("**-- BP sees:"<<iter->second->getStr().Data()<<".\n");
                 if (iter->second->getStr().CompareTo(" save") == 0 ) {
 		      save.push_back(iter->first);
@@ -268,17 +319,19 @@ int BPdbxA:: readAnalysisParams() {
 		}
                 iter++;
        }
+       std::cout << "Looking for bug out of loop " << dr++ << std::endl;
 #ifdef _CLV__
 // check if the user injects cuts or not.
      for (int jt=0; jt<TRGValues.size(); jt++){
+       std::cout << "Looking for bug " << dr++ << std::endl;
       cout <<"Cut @:"<<jt<<" value:"<<TRGValues.at(jt)<<"\n";
      }
      for (int jt=0; jt<effCL.size(); jt++){
       cout << "Eff @:"<<jt<<" val:"<<effCL.at(jt)<<"\n";
      }
 #endif
- 
-    unsigned int binsize=BinCuts.size(); // bins 
+
+    unsigned int binsize=BinCuts.size(); // bins
     if (binsize>0) hbincounts= new TH1D("bincounts","event counts in bins ",binsize,0.5,binsize+0.5);
     if (binsize==binCL.size() ) {
      for (unsigned int jbin=0; jbin<binsize; jbin++){
@@ -287,13 +340,13 @@ int BPdbxA:: readAnalysisParams() {
      }
     } else {
      std::map<int, Node*>::iterator biter = BinCuts.begin();
-     while(biter != BinCuts.end()) {    
+     while(biter != BinCuts.end()) {
        DEBUG("Bin from Auto yacc:"<<biter->second->getStr()<<"\n");
        hbincounts->GetXaxis()->SetBinLabel(biter->first, biter->second->getStr().Data() );
        biter++;
      }
     }
-//--------effciency names and debugs     
+//--------effciency names and debugs
        eff->GetXaxis()->SetBinLabel(1,"all Events"); // this is hard coded.
        cout << "TRGe:"<<TRGe<<"  TRGm:"<<TRGm<<"\n";
        DEBUG("CL CUTS:"<< NodeCuts.size()<< " eff:"<<effCL.size() <<"\n");
@@ -306,29 +359,29 @@ int BPdbxA:: readAnalysisParams() {
        }
        bool nextcpp=false;
        while(iter != NodeCuts.end())
-       {  
+       {
           DEBUG(" CUT "<<iter->first<<" LabelSkip:"<<labelSkip<< " inserted:"<<inserted << " ");
           DEBUG(" :"<<iter->second->getStr()<<"\t");
           string newNLabels=iter->second->getStr().Data();
           DEBUG("-->"<<effCL[ iter->first -1-labelSkip]<<"\t");
           TString ELabels=effCL[ iter->first -1-labelSkip];
           if (inserted>0 && !nextcpp) { //5-0 yacc, 6-1: c++,
-            if ( iter->first == TRGValues.at(labelSkip+5)  ) { usecpp=false; inserted-=1;  } 
+            if ( iter->first == TRGValues.at(labelSkip+5)  ) { usecpp=false; inserted-=1;  }
           } else usecpp=true;
-         
+
           if (usecpp) {
                 DEBUG("From C++:"<<ELabels<<"\n");
                 eff->GetXaxis()->SetBinLabel(iter->first+1,ELabels.Data()); // labels
                 nextcpp=false;
           } else {
                 DEBUG("from yacc:"<<newNLabels<<"\n");
-                string newlabels="Size "+newNLabels; 
+                string newlabels="Size "+newNLabels;
                 eff->GetXaxis()->SetBinLabel(iter->first+1,newlabels.c_str()); // labels
                 labelSkip++;
                 nextcpp=true;
-          } 
-           
-           iter++; 
+          }
+
+           iter++;
        }
  DEBUG("BIN CUTS: \n");
        iter = BinCuts.begin();
@@ -351,8 +404,8 @@ for (map<string,vector<cntHisto> >::iterator ichi = cntHistos.begin(); ichi != c
            TH1D* chistoU= new TH1D(  upname.c_str(), ih->cH_title.c_str(), ih->cH_means.size(), 0.5, 0.5+ih->cH_means.size());
            TH1D* chistoD= new TH1D(downname.c_str(), ih->cH_title.c_str(), ih->cH_means.size(), 0.5, 0.5+ih->cH_means.size());
            for (unsigned int iv=0; iv<ih->cH_means.size(); iv++){
-     //        cout<< ih->cH_means[iv] << " stat +" << ih->cH_StatErr_p[iv] << " -"<<ih->cH_StatErr_n[iv] 
-      //                               << "  sys +" << ih->cH_SystErr_p[iv] << " -"<<ih->cH_SystErr_n[iv] <<"\n";  
+     //        cout<< ih->cH_means[iv] << " stat +" << ih->cH_StatErr_p[iv] << " -"<<ih->cH_StatErr_n[iv]
+      //                               << "  sys +" << ih->cH_SystErr_p[iv] << " -"<<ih->cH_SystErr_n[iv] <<"\n";
              chistoM->SetBinContent(1+iv, ih->cH_means[iv]);
              chistoU->SetBinContent(1+iv, sqrt(ih->cH_StatErr_p[iv]*ih->cH_StatErr_p[iv] + ih->cH_SystErr_p[iv]*ih->cH_SystErr_p[iv]));
              chistoD->SetBinContent(1+iv, sqrt(ih->cH_StatErr_n[iv]*ih->cH_StatErr_n[iv] + ih->cH_SystErr_n[iv]*ih->cH_SystErr_n[iv]));
@@ -380,7 +433,7 @@ for (map<string,vector<cntHisto> >::iterator ichi = cntHistos.begin(); ichi != c
             it++;
     }
 
-    cout<<"\n Variables results: \n";
+    cout<<"\n Variables results: " << std::endl;
     map<string,Node* >::iterator itv = NodeVars.begin();
     while(itv != NodeVars.end())
     {
@@ -417,7 +470,7 @@ int BPdbxA::bookAdditionalHistos() {
   return 0;
 }
 //------------------------
-int BPdbxA::Finalize(){       
+int BPdbxA::Finalize(){
   std::cout <<"finalize.\n";
   return 1;
 }
@@ -428,7 +481,7 @@ int BPdbxA::makeAnalysis( AnalysisObjects *ao, int controlword, int lastCutPass)
   evt_data anevt = ao->evt; // event information
 
   DEBUG("-----------------------------------------------"<<cname<<" ctrl:"<< controlword<< " lastC:"<<lastCutPass<< "\n");
-  double evt_weight = ao->evt.user_evt_weight; // FROM file or previous calculation  
+  double evt_weight = ao->evt.user_evt_weight; // FROM file or previous calculation
   DEBUG("--event user weight:"<<evt_weight<<" TRGe:"<< TRGe<< " TRGm:"<<TRGm<<"\n");
   if (controlword == 0){
 
@@ -457,7 +510,7 @@ int BPdbxA::makeAnalysis( AnalysisObjects *ao, int controlword, int lastCutPass)
 // no need to calculate something that we know will fail.
    if (!lastCutPass) {  //std::cout << "failed event:"<< anevt.event_no<<"\n";
     return 0;}
-  } 
+  }
 
 // --------- INITIAL  # events  ====> C0
         eff->Fill(1, 1);
@@ -468,7 +521,7 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
 // *************************************
 
     std::map<int, Node*>::iterator iter = NodeCuts.begin();
-//----------------------reset 
+//----------------------reset
 
   if (controlword == 0){
     DEBUG("Start resetting cuts:"<< NodeCuts.size() <<"\n");
@@ -486,7 +539,7 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
     iter = NodeCuts.begin();
    } else { //  dependent region retrieve the optimization results
      for (int in:optimize){
-     
+
          DEBUG("Rest & Get Optimals from cut id:"<< in<<"\t");
          Node *acut = NodeCuts[in];
             while (acut != NULL) {
@@ -504,8 +557,8 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
        DEBUG("size:"<<banker->second.size()<<"\n");
        Node *Snode=NodeCuts[banker->first];
        vector<myParticle *> myParticles;
-       int rcount=0; 
-       do {     
+       int rcount=0;
+       do {
               Snode->getParticles(&myParticles);
               if (myParticles.size() == 0 ) {
                 rcount++;
@@ -529,9 +582,9 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
                 DEBUG("cut "<<banker->first<<" received "<< (banker->second).size() << " particles from BANK\n");
                 for (int lcount=0; lcount<=rcount; lcount++) {Snode=Snode->right; DEBUG("Moved right\n"); }
               }
-       
+
           } while (myParticles.size() == 0 && Snode!=NULL);
-       
+
         banker++;
       }
 // std::map< int, vector<myParticle *> > BPdbxA::particleBank;
@@ -560,7 +613,7 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
   }
 //----------------------execute
     while(iter != NodeCuts.end())
-    {   
+    {
         double d;
         vector<int> originalParticleIndices;
         DEBUG("**********Selecting: "<<iter->first<<" | "<<iter->second->getStr()<<"\t");
@@ -583,8 +636,8 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
                DEBUG("Before Eval"<<iter->first<<" "<<theseParticles.size()<<"\n");
                for (unsigned int ip=0; ip<theseParticles.size(); ip++){
                  DEBUG("initially:"<<theseParticles[ip]->collection<<" type:"<< theseParticles[ip]->type<<" index:"<<theseParticles[ip]->index<<"\n");
-                 originalParticleIndices.push_back(theseParticles[ip]->index);  
-               } 
+                 originalParticleIndices.push_back(theseParticles[ip]->index);
+               }
                if (theseParticles.size() == 0) { searcher=searcher->left; }
              } while (theseParticles.size() == 0 && searcher!=NULL);
            }
@@ -614,7 +667,7 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
              vector<myParticle *> theseParticles;
              vector<myParticle *> bParticles;
              Node *searcher=iter->second; //////////////////////////////////////////////////////////////////////////////NGU
-             do { 
+             do {
               searcher->getParticles(&theseParticles);
               DEBUG(" #particles:"<< theseParticles.size()<<" "<<searcher->getStr()<<".\n");
              if (theseParticles.size()==0) searcher=searcher->left;
@@ -631,7 +684,7 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
         iter++; //moves on to the next cut
     } // loop over all cutlang cuts
     DEBUG("   EOE\n     ");
-    
+
     iter = BinCuts.begin();
     DEBUG("Binning now ..\n");
     while(iter != BinCuts.end())
@@ -647,10 +700,9 @@ DEBUG("------------------------------------------------- Event ID:"<<anevt.event
            break;
         }
         iter++; //moves on to the next cut
-    }// loop over all binnings   
+    }// loop over all binnings
 
    if  (controlword > 0 ) { ao->evt.user_evt_weight=evt_weight; }
 // les cuts sont finis ici.
     return 10000+NodeCuts.size();
 }
-

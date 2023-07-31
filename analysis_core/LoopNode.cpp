@@ -10,6 +10,49 @@
 #include "LFuncNode.h"
 #include <TRandom3.h>
 
+
+LoopNode::LoopNode(std::vector<bool> (*func)(std::vector<double>), Node* l, std::string s){
+  g=func;
+  f=NULL;
+  symbol=s;
+  left=l;
+  lefs.push_back(l);
+  right=NULL;
+}
+LoopNode::LoopNode(double (*func)(std::vector<double>), Node* l, std::string s){
+  f=func;
+  g=NULL;
+  symbol=s;
+  left=l;
+  lefs.push_back(l);
+  right=NULL;
+}
+LoopNode::LoopNode(double (*func)(std::vector<double>), std::vector<Node*> ls, std::string s){
+  f=func;
+  g=NULL;
+  symbol=s;
+  left=ls[0]; // just in case if someone asks the list of particles for example
+  lefs=ls;
+  right=NULL;
+}
+
+void LoopNode::getParticles(std::vector<myParticle *>* particles) {
+   left->getParticles(particles);
+}
+
+void LoopNode::getParticlesAt(std::vector<myParticle *>* particles, int index) {
+  left->getParticlesAt(particles,index);
+}
+
+void LoopNode::Reset() {
+  left->Reset();
+}
+
+
+LoopNode::~LoopNode() {
+  if (left!=NULL) delete left;
+}
+
 //#define _CLV_
 #ifdef _CLV_
 #define DEBUG(a) std::cout<<a
@@ -36,13 +79,13 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
       DEBUG("LeftNodes size:"<<lefs.size()<<"\n");
       for (int in=0; in<lefs.size(); in++){ // loop over all possible left branches.
        left=lefs[in];
-       this->getParticles(&inputParticles);       
- 
+       this->getParticles(&inputParticles);
+
        bool oneParticleAtATime=false;
        for (int ii=0; ii<inputParticles.size(); ii++){
         DEBUG("Loop particle ID:"<<ii<<" Type:"<<inputParticles[ii]->type<<" collection:"
                      << inputParticles[ii]->collection << " index:"<<inputParticles[ii]->index<<"\n");
-        if (inputParticles[ii]->index > 9999) oneParticleAtATime=true; 
+        if (inputParticles[ii]->index > 9999) oneParticleAtATime=true;
        }
        ipart2_max=0; // loop counter
        bool constiloop=false;
@@ -94,7 +137,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
        for (int ii=0; ii<ipart2_max; ii++) {
         myParticle* a = new myParticle;
                     a->type = base_type2; a->index =ii; a->collection =bcol2;
-                    spareParticles.push_back(a); 
+                    spareParticles.push_back(a);
        }
       }
        for (int ii=0; ii<spareParticles.size(); ii++){
@@ -103,7 +146,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
        }
       }
 
-      if   (inputParticles.size()==1 
+      if   (inputParticles.size()==1
         && (inputParticles[0]->index==6213 || inputParticles[0]->type==consti_t) ) // here we loop over all particles in the collection
       {
        DEBUG("Looping one by one\n");
@@ -117,7 +160,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
             DEBUG("down-downcast OK\n");
           }
         }
-        
+
        for (int ii=0;ii<ipart2_max; ii++){
         DEBUG("now for particle "<<ii<<"\n");
         pippo->setParticleIndex(0, ii);
@@ -129,7 +172,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
         }
         retval=left->evaluate(ao);
         DEBUG("Loop retval:"<<retval<<"\n");
-        result_list.push_back(retval); 
+        result_list.push_back(retval);
        }
         pippo->setParticleIndex(0, 6213);
       } else if(oneParticleAtATime){   // here we give an explicit list, like 1,3,4,6..
@@ -141,7 +184,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
             ((LFuncNode*)left)->setParticleIndex(ii, anindex-10000 );
             retval=left->evaluate(ao);
             DEBUG("retval:"<<retval<<"\n");
-            result_list.push_back(retval); 
+            result_list.push_back(retval);
             ((LFuncNode*)left)->setParticleIndex(ii, anindex );
            }
          DEBUG("end of loop\n");
@@ -152,7 +195,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
               ((LFuncNode*)left)->setParticleIndex(0, anindex);
               retval=left->evaluate(ao);
               DEBUG("retval:"<<retval<<"\n");
-              result_list.push_back(retval); 
+              result_list.push_back(retval);
           }
           ((LFuncNode*)left)->setParticleIndex(0, 16213);
           DEBUG("end of loop\n");
@@ -164,7 +207,7 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
          DEBUG("Size:"<<inputParticles.size()<<"\n");
          retval=left->evaluate(ao);
          DEBUG("retval:"<<retval<<"\n");
-         result_list.push_back(retval); 
+         result_list.push_back(retval);
        }
      }// end of loop over multiple lefts
 
@@ -190,8 +233,8 @@ double LoopNode::evaluate(AnalysisObjects* ao) {
                  case tau_t:  ( ao->taus)[bcol2].erase((ao->taus  ).find(bcol2)->second.begin()+ii); break;
                case combo_t: (ao->combos)[bcol2].erase((ao->combos).find(bcol2)->second.begin()+ii); break;
                case pureV_t: break;
-          }//loop over switch 
-         }// loop over kill 
+          }//loop over switch
+         }// loop over kill
         } // loop over particles and results
         } // loop over all particles or not
        return 1;
@@ -241,7 +284,7 @@ std::vector<bool> hitmissA(std::vector<double> xlist){
  double r = MYrand4.Uniform(0,1);
 // std::cout <<r<<"\n";
  DEBUG("hit/miss to Accept:"<<xlist[ii]<< " vs " << r << "\t");
- if (xlist[ii]< r ) { retvals.push_back(false); DEBUG("Missed.\n");} 
+ if (xlist[ii]< r ) { retvals.push_back(false); DEBUG("Missed.\n");}
  else { retvals.push_back(true); DEBUG("Hit.\n"); }
  }
  return retvals;
@@ -257,11 +300,11 @@ std::vector<bool> hitmissR(std::vector<double> xlist){
 // double r = LoopNode::getRand();
 // std::cout <<r<<"\n";
  DEBUG("hit/miss to Reject:"<<xlist[ii]<< " vs " << r << "\t");
- if (xlist[ii]> r ) { retvals.push_back(false); DEBUG("Missed.\n");} 
+ if (xlist[ii]> r ) { retvals.push_back(false); DEBUG("Missed.\n");}
  else { retvals.push_back(true); DEBUG("Hit.\n"); }
  }
  return retvals;
 }
 
-   
+
 #endif /* LoopNode_cpp */

@@ -12,9 +12,11 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include "../CLA/driver.h"
+
 
 class BPdbxA : public dbxA {
-  public: 
+  public:
       BPdbxA(char *aname) : dbxA ( aname)
          {
           cname=aname;
@@ -40,7 +42,8 @@ class BPdbxA : public dbxA {
         }
         return r;
       }
-      
+
+
    private:
       bool grl_cut;
       string cname;
@@ -57,9 +60,9 @@ class BPdbxA : public dbxA {
       bool systematicsRun;
       std::vector<int> save;
       unordered_set<int> optimize;
-      static map<int, std::vector<myParticle *> > particleBank;
+      map<int, std::vector<myParticle *> > particleBank;
 
- 
+
 //relevant variables
         list<std::string> parts; //for def of particles as given by user
         map<std::string,Node*> NodeVars;//for variable defintion

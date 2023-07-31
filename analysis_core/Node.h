@@ -87,23 +87,9 @@ public:
     virtual TString getStr();
     virtual void saveFile();
     virtual void createFile();
-    virtual void setUserObjects(Node *objectNodea = NULL, Node *objectNodeb = NULL, Node *objectNodec = NULL, Node *objectNoded = NULL){
-      std::cout<<"Mother adds UOs.\n";
-        userObjectA=objectNodea;
-        userObjectB=objectNodeb;
-        userObjectC=objectNodec;
-        userObjectD=objectNoded;
-     };
+    virtual void setUserObjects(Node *objectNodea = NULL, Node *objectNodeb = NULL, Node *objectNodec = NULL, Node *objectNoded = NULL);
 
-  virtual double evaluate(AnalysisObjects* ao){
-     if(userObjectA)  userObjectA->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
-     if(userObjectB)  userObjectB->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
-     if(userObjectC)  userObjectC->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
-     if(userObjectD)  userObjectD->evaluate(ao); // returns 1, hardcoded. see ObjectNode.cpp
-     if( userObjectA || userObjectB || userObjectC || userObjectD ) std::cout<<"UOs EVALUATED:"<< getStr() <<"\n";
-
-    return 0;
-  }
+  virtual double evaluate(AnalysisObjects* ao);
     virtual ~ Node();
     std::vector<dbxJet> tagJets(AnalysisObjects *ao, int jtype, std::string cn) ;
 

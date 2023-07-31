@@ -25,7 +25,7 @@ using namespace std;
 
 class SFuncNode : public Node {
 private:
-    static std::map< std::string, double > BUFFERED_VALUES;
+    std::map< std::string, double > BUFFERED_VALUES;
     //should add something related to trigger types
     Node* userObjectA;
     Node* userObjectB;
@@ -53,209 +53,61 @@ private:
 
 
 public:
-    SFuncNode(double (*func)(AnalysisObjects* ao, string s, float val), 
-              float val, 
-              std::string s, 
-              Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        f=func;
-        g1=NULL;
-        g2=NULL;
-        g3=NULL;
-        g4=NULL;
-        g5=NULL;
-        g6=NULL;
-        ext=false;
-        value=val;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-        DEBUG("** SF node with no left right nodes.\n");
-
-}
     SFuncNode(double (*func)(AnalysisObjects* ao, string s, float val),
-              Node *child, std::string s, 
-              Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        f=func;
-        g1=NULL;
-        g2=NULL;
-        g3=NULL;
-        g4=NULL;
-        g5=NULL;
-        g6=NULL;
-        ext=false;
-        symbol=s;
-        left=child;
-        right=NULL;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-        DEBUG("** SF node with child node as left.\n");
-}
+              float val,
+              std::string s,
+              Node *objectNodeA = NULL, Node *objectNodeB = NULL);
+    SFuncNode(double (*func)(AnalysisObjects* ao, string s, float val),
+              Node *child, std::string s,
+              Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 
 //------------------------- g1 with userfuncA
     SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, std::vector<TLorentzVector> (*gunc) (std::vector<TLorentzVector> jets, int p1)),
               std::vector<TLorentzVector> (*tunc) (std::vector<TLorentzVector> jets, int p1),
-                      int id, 
-               std::string s, 
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
-        f=NULL;
-        g3=NULL;
-        g2=NULL;
-        g4=NULL;
-        g5=NULL;
-        g6=NULL;
-        g1=func;
-        h1=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-}
+                      int id,
+               std::string s,
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double (*gunc) (std::vector<TLorentzVector> jets)),
               double (*tunc) (std::vector<TLorentzVector> jets),
-                      int id, 
-               std::string s, 
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
-        f=NULL;
-        g6=NULL;
-        g5=NULL;
-        g4=NULL;
-        g3=NULL;
-        g1=NULL;
-        g2=func;
-        h2=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-
-}
+                      int id,
+               std::string s,
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double (*gunc) (std::vector<TLorentzVector> jets, TVector2 amet)),
               double (*tunc) (std::vector<TLorentzVector> jets, TVector2 amet),
-                      int id, 
-               std::string s, 
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-       DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
-        f=NULL;
-        g1=NULL;
-        g2=NULL;
-        g4=NULL;
-        g5=NULL;
-        g6=NULL;
-        g3=func;
-        h3=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-
-}
+                      int id,
+               std::string s,
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, TLorentzVector alv, double (*gunc) (std::vector<TLorentzVector> jets, TLorentzVector amet)),
               double (*tunc) (std::vector<TLorentzVector> jets, TLorentzVector amet),
-                      int id, 
+                      int id,
                std::string s,
-               std::vector<myParticle*> input, 
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        DEBUG("*****************************************EXTERN SF :"<<s <<"\n");
-        f=NULL;
-        g1=NULL;
-        g2=NULL;
-        g3=NULL;
-        g5=NULL;
-        g6=NULL;
-        g4=func;
-        h4=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        inputParticlesA=input;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-}
+               std::vector<myParticle*> input,
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, TLorentzVector a1, TLorentzVector a2, TLorentzVector b1, double (*gunc) (TLorentzVector lep1, TLorentzVector lep2, TLorentzVector amet)),
               double (*tunc) (TLorentzVector lep1, TLorentzVector lep2, TLorentzVector amet),
-                      int id, 
+                      int id,
                std::string s,
-               std::vector<myParticle*> input1, 
-               std::vector<myParticle*> input2, 
-               std::vector<myParticle*> input3, 
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        DEBUG("*****************************************EXTERN SF T5:"<<s <<"\n");
-        f=NULL;
-        g1=NULL;
-        g2=NULL;
-        g3=NULL;
-        g4=NULL;
-        g6=NULL;
-        g5=func;
-        h5=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        inputParticlesA=input1;
-        inputParticlesB=input2;
-        inputParticlesC=input3;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-}
+               std::vector<myParticle*> input1,
+               std::vector<myParticle*> input2,
+               std::vector<myParticle*> input3,
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 //--------------------------------g6
 SFuncNode(double (*func)(AnalysisObjects* ao, string s, int id, double pt1, double pt2, double m1, double pt3, double (*gunc)(double a1, double a2, double a3, double a4)),
               double (*tunc) (double a1, double a2, double a3, double a4),
                       int id,
                std::string s,
                   double apt1, double apt2, double apt3, double apt4,
-               Node *objectNodeA = NULL, Node *objectNodeB = NULL){
-        DEBUG("*****************************************EXTERN SF T5:"<<s <<"\n");
-        f=NULL;
-        g1=NULL;
-        g2=NULL;
-        g3=NULL;
-        g4=NULL;
-        g5=NULL;
-        g6=func;
-        h6=tunc;
-        ext=true;
-        type=id;
-        symbol=s;
-        left=NULL;
-        right=NULL;
-        pv1=apt1; 
-        pv2=apt2; 
-        pv3=apt3; 
-        pv4=apt4; 
- //      inputParticlesA=input1;
- //      inputParticlesB=input2;
- //      inputParticlesC=input3;
-        userObjectA = objectNodeA;
-        userObjectB = objectNodeB;
-}
-
+               Node *objectNodeA = NULL, Node *objectNodeB = NULL);
 
 
 //---------------------------end of extern function types
-    
+
     virtual double evaluate(AnalysisObjects* ao) override ;
     virtual void Reset() override;
-    virtual void getParticles(std::vector<myParticle *>* particles) override{}
-    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override{}
-    virtual void setSymbol(string s) { symbol=s; }
-    virtual ~SFuncNode() {}
+    virtual void getParticles(std::vector<myParticle *>* particles) override;
+    virtual void getParticlesAt(std::vector<myParticle *>* particles, int index) override;
+    virtual void setSymbol(string s);
+    virtual ~SFuncNode();
 };
 
 double none(AnalysisObjects* ao, string s, float id);
@@ -308,7 +160,7 @@ double emwt(AnalysisObjects* ao){
     if (dphi_e_et>M_PI) dphi_e_et=2*M_PI-dphi_e_et;
     float mwt=sqrt(2*leppt*ao->met.Mod()*(1-cos(dphi_e_et)));
     return (mwt);
-} 
+}
 
 double mmwt(AnalysisObjects* ao){
     double theLeptonTrkPhi = ao->muos.at(0).lv().Phi();
@@ -317,7 +169,7 @@ double mmwt(AnalysisObjects* ao){
     if (dphi_e_et>M_PI) dphi_e_et=2*M_PI-dphi_e_et;
     float mwt=sqrt(2*leppt*ao->met.Mod()*(1-cos(dphi_e_et)));
     return (mwt);
-} 
+}
 
 double mmetmwt(AnalysisObjects* ao){
     double theLeptonTrkPhi = ao->muos.at(0).lv().Phi();

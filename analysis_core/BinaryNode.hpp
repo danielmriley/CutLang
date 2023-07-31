@@ -27,98 +27,34 @@ class BinaryNode : public Node{
 private:
     double (*f)(double, double);
 public:
-    BinaryNode(double (*func)(double, double), Node* l, Node* r, std::string s){
-        f=func;
-        symbol=s;
-        left=l;
-        right=r;
-    }
+    BinaryNode(double (*func)(double, double), Node* l, Node* r, std::string s);
 
-    virtual void getParticles(std::vector<myParticle *>* particles) override{
-        left->getParticles(particles);
-        right->getParticles(particles);
-        
-    }
+    virtual void getParticles(std::vector<myParticle *>* particles) override;
 
-    virtual void getParticlesAt(std::vector<myParticle *>* particles,int index) override{
-        left->getParticlesAt(particles,index);
-        right->getParticlesAt(particles,index);
-    }
-    virtual void Reset() override{
-        left->Reset();
-        right->Reset();
-    }
-    virtual double evaluate(AnalysisObjects* ao) override{
-//        std::vector<myParticle *> myParticles;
-//        left->getParticles(&myParticles);
-//        for (int ip=0; ip<myParticles.size(); ip++){
-//                  DEBUG("LEFT pid "<<ip<<"\t");
-//                  DEBUG(" Coll:"<<myParticles.at(ip)->collection<<"\t");
-//                  DEBUG("\ttype:"<< myParticles.at(ip)->type <<"\tindex:"<<myParticles.at(ip)->index<<"\n");
-//              }
-//        right->getParticles(&myParticles);
-//        for (int ip=0; ip<myParticles.size(); ip++){
-//                  DEBUG("RIGHT pid "<<ip<<"\t");
-//                  DEBUG(" Coll:"<<myParticles.at(ip)->collection<<"\t");
-//                  DEBUG("\ttype:"<< myParticles.at(ip)->type <<"\tindex:"<<myParticles.at(ip)->index<<"\n");
-//              }
-
-            return (*f)(left->evaluate(ao),right->evaluate(ao));
-    }
-    virtual ~BinaryNode() {
-//        if (left!=NULL) delete left;
-//        if (right!=NULL) delete right;
-    }
+    virtual void getParticlesAt(std::vector<myParticle *>* particles,int index) override;
+    virtual void Reset() override;
+    virtual double evaluate(AnalysisObjects* ao) override;
+    virtual ~BinaryNode();
 
 };
 
-double add(double left, double right) {
-    return left + right;
-}
-
-double mult(double left, double right) {
-    return left * right;
-}
-
-double sub(double left, double right) {
-    return left - right;
-}
-
-double div(double left, double right) {
-    return left / right;
-}
+// BinaryNode functions
+double add(double left, double right);
+double mult(double left, double right);
+double sub(double left, double right);
+double div(double left, double right);
 
 //double power ALREADY EXIST
-double lt(double left, double right){
-    return (double)(left<right);
-}
-double le(double left, double right){
-    return (double)(left<=right);
-}
-double ge(double left, double right){
-    return (double)(left>=right);
-}
-double gt(double left, double right){
-    return (double)(left>right);
-}
-double eq(double left, double right){
-    return (double)(left==right);
-}
-double ne(double left, double right){
-    return (double)(left!=right);
-}
-double LogicalAnd(double left, double right){
-    return (double)(left&&right);
-}
-double LogicalOr(double left, double right){
-    return (double)(left||right);
-}
-double mnof(double left, double right){
-    return (double)( (left<right)*left +(left>right)*right );
-}
-double mxof(double left, double right){
-    return (double)( (left>right)*left +(left<right)*right );
-}
+double lt(double left, double right);
+double le(double left, double right);
+double ge(double left, double right);
+double gt(double left, double right);
+double eq(double left, double right);
+double ne(double left, double right);
+double LogicalAnd(double left, double right);
+double LogicalOr(double left, double right);
+double mnof(double left, double right);
+double mxof(double left, double right);
 
 
 //if CONDITION-> later
