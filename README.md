@@ -1,16 +1,35 @@
 ![cutlangg copy](https://user-images.githubusercontent.com/87129919/205994964-43ac15b7-076e-40d1-aad2-561cfe2527c2.png)
 
+To run the flowchart generator, use the code in [this](https://github.com/danielmriley/atom_smasher) repository.
 
+Run `make` and the executeable `smash` will be generated.
 
+To run:
+
+```
+./smash <FILE>
+```
+
+Two files will be made.
+`ast.dot` and `fc.dot`
+
+Run:
+
+```
+dot -Tpdf ast.dot -o ast.pdf
+dot -Tpdf fc.dot -o fc.pdf
+```
+
+to create the appropriate PDF.
 
 <img width="300" src = "https://user-images.githubusercontent.com/87129919/205978363-ddf03199-46aa-4572-bcb1-545fd2e82682.jpg" align = "right" >
 
-This is the repository for ***CutLang: A Particle Physics Analysis Description Language Runtime Interpreter***. 
+This is the repository for ***CutLang: A Particle Physics Analysis Description Language Runtime Interpreter***.
 CutLang is a domain-specific language and interpreter for cut-based HEP data analysis. It allows users to write analysis in ADL (Analysis Description Language) files, which are then interpreted by the CutLang framework at run time. The interpreter is implemented in C++ and is built on top of the CERN data analysis framework ROOT. CutLang offers several features to make data analysis more efficient and error-free, including object definitions, event selections, histogramming, and Monte Carlo weighting. It also supports multi-core/multi-CPU hardware and has the ability to save events at any stage of the analysis. The latest version CutLang V3 uses the Lex/Yacc-based approach for ADL file processing and has several enhancements over the previous version, including improved handling of object combinatorics, the ability to include tables and weights and support for more complex algorithms. By providing a standard and human-readable way for writing and interpretation, CutLang and ADL is aiming to advance the field of HEP data analysis.
 
 
 
-### What is ADL? 
+### What is ADL?
 ADL (Analysis Description Language) is a domain-specific language used to describe and implement analysis in high-energy particle physics experiments. ADL allows users to write HEP analyses in a clear and easily readable format. ADL is written in a way that is independent of any specific computing framework, making it easier to share and compare analyses between different users and experiments. It is used to define the criteria for selecting events of interest and to specify how the selected events should be processed (e.g. by calculating certain variables or performing specific cuts). ADL is typically used in conjunction with a Monte Carlo simulation to generate samples of events and a data analysis framework to process the events and produce results. You can read more about it [here](http://cern.ch/adl).
 
  <div align="center" > <img src="https://user-images.githubusercontent.com/87129919/205975336-c6b1e85c-6055-4247-987d-68cc01b7f5cf.jpg"> </div>
@@ -66,7 +85,7 @@ Cutlang is available on **Linux, macOS, and Windows (partially)**.
 Available on **Linux, macOS, and Windows**
 
  ### <a name="using-cutlang-from-source-setup"></a> &#9655;		Setup
- 
+
 <ins>**Dependencies:**</ins>
   - [ROOT6](root.cern.ch)
   - command line compilation utilities (make, gcc, g++...)
@@ -146,12 +165,12 @@ Available on **Linux, macOS, and Windows**
 After installing the Docker, download the image and run the container using:
 
 ```bash
-  docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v $PWD/:/src --name CutLang-root-vnc cutlang/cutlang-root-vnc:latest 
+  docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v $PWD/:/src --name CutLang-root-vnc cutlang/cutlang-root-vnc:latest
 #If you would like to re-run by mounting another directory, you should stop the container using
 #docker stop CutLang-root-vnc && docker container rm CutLang-root-vnc
-#and rerun with a different path as 
+#and rerun with a different path as
 #docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v /path/you/want/:/src ...
-#For example: 
+#For example:
 #docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v ~/example_work_dir/:/src --name CutLang-root-vnc cutlang/cutlang-root-vnc:latest
 ```
 For Windows:
@@ -159,21 +178,21 @@ For Windows:
  docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v %cd%/:/src --name CutLang-root-vnc cutlang/cutlang-root-vnc:latest
  #If you would like to re-run by mounting another directory, you should stop the container using
 >> docker stop CutLang-root-vnc && docker container rm CutLang-root-vnc
-#and rerun with a different path as 
-# docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v /path/you/want/:/src ... 
+#and rerun with a different path as
+# docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v /path/you/want/:/src ...
 #For example:
 #docker run -p 8888:8888 -p 5901:5901 -p 6080:6080 -d -v ~/example_work_dir/:/src --name CutLang-root-vnc cutlang/cutlang-root-vnc:latest
 ```
-Execute the container by `docker exec -it CutLang-root-vnc bash` . 
+Execute the container by `docker exec -it CutLang-root-vnc bash` .
 
-If you have installed the container successfully, you will see: 
+If you have installed the container successfully, you will see:
 ```bash
 For examples see /CutLang/runs/
 and for LHC analysis implementations, see
 https://github.com/ADL4HEP/ADLLHCanalyses
 ```
 Now, the container is ready to run CutLang.
-You can leave the container by typing `exit` on the command line. 
+You can leave the container by typing `exit` on the command line.
 
 ### <a name="using-cutlang-with-docker-update"></a> &#9655;	 Update
 In case an update is necessary, you can perform the update as follows:
@@ -219,7 +238,7 @@ CutLang can be used on Jupyter notebooks with ROOT
 
 ## <a name="running-cutlang"></a> Running CutLang
 
-CutLang can be run anywhere using the `CLA` (shell script) or using the `CLA.py` scripts. 
+CutLang can be run anywhere using the `CLA` (shell script) or using the `CLA.py` scripts.
 
 ```bash
  CLA (or CLA.py) [inputrootfile] [inputeventformat] -i [adlfilename.adl] -e [numberofevents]
@@ -230,10 +249,10 @@ CutLang can be run anywhere using the `CLA` (shell script) or using the `CLA.py`
  # CLA (or CLA.py) [inputrootfile] [inputeventformat] -i [adlfilename.adl] -e [numberofevents] -j 8
  # above command starts 8 simultaneous processes
 ```
-- Input event formats can be: *DELPHES, CMSNANO, LHCO, FCC, ATLASVLL, ATLASOD, CMSOD, VLLBG3 and LVL0 (CutLang internal format)* 
+- Input event formats can be: *DELPHES, CMSNANO, LHCO, FCC, ATLASVLL, ATLASOD, CMSOD, VLLBG3 and LVL0 (CutLang internal format)*
 - Number of events is optional.
 
-The output will be saved in `histoOut-[adlfilename].root`.  This ROOT file will have a separate directory for each search region, which contains the relevant histograms and ADL content defining the region. The histogram(s) `cutflow` (and `bincounts`, in case search bins are specified in the region) exist by default. 
+The output will be saved in `histoOut-[adlfilename].root`.  This ROOT file will have a separate directory for each search region, which contains the relevant histograms and ADL content defining the region. The histogram(s) `cutflow` (and `bincounts`, in case search bins are specified in the region) exist by default.
 
 ### <ins> Getting Started with Examples: </ins>
 
@@ -245,7 +264,7 @@ wget https://www.dropbox.com/s/zza28peyjy8qgg6/T2tt_700_50.root
 
 The samples contain SUSY events in DELPHES format.
 
-ADL syntax is self-descriptive. One can study and run several tutorial examples to learn the main syntax rules. These examples can be seen by: 
+ADL syntax is self-descriptive. One can study and run several tutorial examples to learn the main syntax rules. These examples can be seen by:
 
 ```bash
 ls /CutLang/runs/tutorials/*.adl
@@ -270,17 +289,17 @@ More ADL files for various full LHC analyses (focusing on signal region selectio
 ## <a name="tutorial"></a> Tutorial
  ### <ins> Launch with Binder:</ins>
 
- - with Jupyter Lab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/unelg/CutLang/master?urlpath=/lab/tree/binder/index.ipynb) 
+ - with Jupyter Lab: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/unelg/CutLang/master?urlpath=/lab/tree/binder/index.ipynb)
 
  - with Jupyter Notebook: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/unelg/CutLang/master?urlpath=/notebooks/binder/index.ipynb)
 
 ### <ins> Launch with Self Host: </ins>
 
-### <a name="tutorial-setup"></a> &#9655;	Setup 
-  
+### <a name="tutorial-setup"></a> &#9655;	Setup
+
  :warning: *CutLang installation should be complete and CLA command should run without any problems.*
 
-### <a name="tutorial-starting"></a>  &#9655; Starting 
+### <a name="tutorial-starting"></a>  &#9655; Starting
 
 Starts Jupyter with "ROOT c++ with CutLang" kernel in $CUTLANG_PATH directory
 
@@ -302,14 +321,14 @@ Starts Jupyter with "ROOT c++ with CutLang" kernel in $CUTLANG_PATH directory
 ## <a name="faq"></a> FAQ
 <details><summary> Where to find an example ntuple? </summary>
 <p>
-<a name="faq-where-to-find-an-example-ntuple"></a> 
+<a name="faq-where-to-find-an-example-ntuple"></a>
 Ntuple files are kept in CLA directory.
 </p>
 </details>
 
 <details>
 <summary> Where to find example ADL files? </summary>
-<a name="faq-where-to-find-an-example-ntuple"></a> 
+<a name="faq-where-to-find-an-example-ntuple"></a>
 Example adl files are kept in runs directory, you can also check out the repository at https://github.com/ADL4HEP/ADLLHCanalyses
 </details>
 
