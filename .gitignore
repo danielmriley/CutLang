@@ -16,6 +16,11 @@ CLA/CLA.C
 CLA/CLA.exe
 .DS_Store
 .github/previous/*
+CLA/Scanner.cpp
+CLA/Parser.cpp
+CLA/Parser.h
+CLA/Parser.output
+CLA/location.hh
 
 *.dot
 *.root
