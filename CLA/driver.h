@@ -1,5 +1,5 @@
-#ifndef DRIVER_HH
-#define DRIVER_HH
+#ifndef DRIVER_H
+#define DRIVER_H
 
 #include "scanner.hpp"
 #include "Parser.h"
@@ -38,7 +38,6 @@ namespace adl {
     Driver(std::istream *in);
 
     int parse();
-    int parse(std::string);
     int visitAST(int (*f)(ExprVector& ast));
     void fillTypeTable();
     void setDependencyChart();
@@ -102,6 +101,7 @@ namespace adl {
     std::map<std::string, LFunction> lfunction_map;
     std::map<std::string, UnFunction> unfunction_map;
     std::map<std::string, SFunction> sfunction_map;
+    std::map<std::string, SFunction> fsfunction_map;
 
     // CutLang data structures.
     std::list<std::string> *parts;

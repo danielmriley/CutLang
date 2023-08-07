@@ -226,34 +226,27 @@ int BPdbxA::readAnalysisParams() {
        // New semantic checks and fill cutlang data structures.
        if(retval == 0) std::cout << "Parsing successful!\n";
 
-       if(retval == 0) std::cout << "ast.size(): " << drv.ast.size() << "\n";
-       if(retval == 0) { drv.setTables(); }
+       if(retval == 0) { retval = drv.setTables(); }
        else std::cerr << "Failed Parsing()\n";
-       // if(retval == 0) for(auto d: drv.objectTable) std::cout << "o: " << d.first << " : " << d.second << "\n";
-       // if(retval == 0) for(auto d: drv.definitionTable) std::cout << "d: " << d << "\n";
-       // if(retval == 0) for(auto d: drv.regionTable) std::cout << "r: " << d << "\n";
 
-       if(retval == 0) { adl::checkDecl(drv); }
+       if(retval == 0) { retval = adl::checkDecl(drv); }
        else std::cerr << "Failed setTables()\n";
 
-       if(retval == 0) { adl::typeCheck(drv); }
+       if(retval == 0) { retval = adl::typeCheck(drv); }
        else std::cerr << "Failed checkDecl()\n";
 
-       if(retval == 0) { drv.visitAST(adl::printAST); } // run "dot -Tpdf ast.dot -o ast.pdf" to create a PDF
-       else std::cerr << "Failed typeCheck()\n";
-
-       if(retval == 0) { adl::printFlowChart(drv); } // run "dot -Tpdf fc.dot -o fc.pdf" to create a PDF
-       else std::cerr << "Failed printAST()\n";
+       // if(retval == 0) { retval = drv.visitAST(adl::printAST); } // run "dot -Tpdf ast.dot -o ast.pdf" to create a PDF
+       // else std::cerr << "Failed typeCheck()\n";
+       //
+       // if(retval == 0) { retval = adl::printFlowChart(drv); } // run "dot -Tpdf fc.dot -o fc.pdf" to create a PDF
+       // else std::cerr << "Failed printAST()\n";
 
        if(retval == 0) {
-         drv.ast2cuts(&parts,&NodeVars,&ListParts,&NodeCuts,
+         retval = drv.ast2cuts(&parts,&NodeVars,&ListParts,&NodeCuts,
                       &BinCuts, &ObjectCuts,
                       &NameInitializations, &TRGValues,
                       &ListTables, &cntHistos, &systmap);
        }
-       // if(res == 0) for(auto d: drv.objectTable) std::cout << "o: " << d << "\n";
-       // if(res == 0) for(auto d: drv.definitionTable) std::cout << "d: " << d << "\n";
-       // if(res == 0) for(auto d: drv.regionTable) std::cout << "r: " << d << "\n";
        if(retval == 0) std::cout << "finished\n";
        else std::cout << "ERROR\n";
 
@@ -274,39 +267,29 @@ int BPdbxA::readAnalysisParams() {
        skip_histos  = (bool) TRGValues[3];
        systematics_bci = TRGValues[4];
 // ------------------------------------4 is reserved for systematics use.
-       std::cout << "Looking for bug " << dr++ << std::endl;
 //------------------------------------------------------------ACTIONS------------------------
 //---------save in the dir.
     unsigned int effsize=NodeCuts.size()+1; // all is always there
-    std::cout << "Looking for bug " << dr++ << std::endl;
 
 //-----create the eff histograms
        dbxA::defHistos( effsize);  // enough room
-       std::cout << "Looking for bug " << dr++ << std::endl;
 
 //----------put into output file as text
     TText cinfo(0,0,CutList2file.Data());
           cinfo.SetName("CLA2cuts");
           cinfo.Write();
-          std::cout << "Looking for bug " << dr++ << std::endl;
 
     TText info(0,0,DefList2file.Data());
           info.SetName("CLA2defs");
           info.Write();
-          std::cout << "Looking for bug " << dr++ << std::endl;
 
     TText oinfo(0,0,ObjList2file.Data());
           oinfo.SetName("CLA2Objs");
           oinfo.Write();
-          std::cout << "Looking for bug " << dr++ << std::endl;
 
 
        std::map<int, Node*>::iterator iter = NodeCuts.begin();
        while(iter != NodeCuts.end()) {
-         std::cout << "Looking for bug in nodecuts " << dr++ << std::endl;
-         std::cout << "ITR: " << iter->first << std::endl;
-         if(iter->second == nullptr) std::cout << "NODE IS NULLPTR" << std::endl;
-         std::cout << "**-- BP sees:" << iter->second->getStr().Data() << ".\n";
                 DEBUG("**-- BP sees:"<<iter->second->getStr().Data()<<".\n");
                 if (iter->second->getStr().CompareTo(" save") == 0 ) {
 		      save.push_back(iter->first);
@@ -319,11 +302,9 @@ int BPdbxA::readAnalysisParams() {
 		}
                 iter++;
        }
-       std::cout << "Looking for bug out of loop " << dr++ << std::endl;
 #ifdef _CLV__
 // check if the user injects cuts or not.
      for (int jt=0; jt<TRGValues.size(); jt++){
-       std::cout << "Looking for bug " << dr++ << std::endl;
       cout <<"Cut @:"<<jt<<" value:"<<TRGValues.at(jt)<<"\n";
      }
      for (int jt=0; jt<effCL.size(); jt++){

@@ -189,6 +189,27 @@ namespace adl {
     return 0;
   }
 
+  int printITE(Expr* n, Expr* b) {
+    if(b->getToken() == "ITE") {
+      ITENode* ite = getITENode(b);
+      Expr* i = ite->getCondition();
+      Expr* t = ite->getThenBranch();
+      Expr* e = ite->getElseBranch();
+
+      if(binOpCheck(i) == 0) {
+        printBinNode(n, getBinNode(i));
+      }
+      if(binOpCheck(t) == 0) {
+        printBinNode(n, getBinNode(t));
+      }
+      if(binOpCheck(e) == 0) {
+        printBinNode(n, getBinNode(e));
+      }
+    }
+
+    return 0;
+  }
+
   int printDefines(Expr* n) {
     VarNode* var = getVarNode(getDefineNode(n)->getVar());
     printVar(n,var);
@@ -224,7 +245,6 @@ namespace adl {
     for(auto& stmnt: ev) {
       Expr* cond = static_cast<CommandNode*>(stmnt)->getCondition();
       printNode(stmnt->getUId(), (stmnt->getToken()).c_str(), stnode->getUId(), stmnt->getUId());
-
       if(binOpCheck(cond) == 0) {
         BinNode* bin = getBinNode(cond);
         printBinNode(stmnt, bin);
@@ -234,6 +254,10 @@ namespace adl {
       }
       else if(cond->getToken() == "ID") {
         printVar(stmnt,cond);
+      }
+      else if(cond->getToken() == "ITE") {
+        // std::cout << "NEED TO PRINT ITE NODE\n";
+        printITE(stmnt, cond);
       }
     }
 
@@ -300,6 +324,10 @@ namespace adl {
     return 0;
   }
 
+
+  // Type checking is incomplete. This method needs to be reimagined to leverage the new
+  // type parameters set later in the execution.
+  // Some of that is done here, but this can be improved.
   std::string typeCheck(Expr* node, Driver& drv) {
     if(binOpCheck(node) == 0) {
       typeCheck(getBinNode(node)->getLHS(),drv);
@@ -307,8 +335,8 @@ namespace adl {
     }
 
     // std::cout << "typecheck token: " << node->getToken() << "\n";
-    if(node->getToken() == "INT") { /* std::cout << " : INTEGER\n"; return node->getToken(); */ }
-    if(node->getToken() == "REAL") { /* std::cout << " : DOUBLE\n"; */ }
+    if(node->getToken() == "INT") { /* std::cout << " : INTEGER\n";  */ return node->getToken(); }
+    if(node->getToken() == "REAL") { /* std::cout << " : DOUBLE\n"; */ return node->getToken(); }
     if(node->getToken() == "ID") {
       // std::cout << "VAR := " << node->getId() << " \n";
       VarNode* vn = getVarNode(node);
@@ -389,23 +417,15 @@ namespace adl {
   }
 
   void printError(std::string var) {
-    std::cout << "ERROR: VAR " << var << " IS NOT DECLARED\n";
+    // std::cout << "ERROR: VAR " << var << " IS NOT DECLARED\n";
   }
 
   int checkTables(Driver& drv, Expr* v) {
     std::string var = v->getId();
     if(drv.checkObjectTable(var) == 0) return 0;
-    // for(auto e: drv.objectTable) {
-    //   if(var == e) return 0;
-    // }
     if(drv.checkDefinitionTable(var) == 0) return 0;
-    // for(auto e: drv.definitionTable) {
-    //   if(var == e) return 0;
-    // }
     if(drv.checkRegionTable(var) == 0) return 0;
-    // for(auto e: drv.regionTable) {
-    //   if(var == e) return 0;
-    // }
+
     printError(var);
     return 1;
   }
@@ -473,7 +493,7 @@ namespace adl {
       if(token == "REGION") {
         // std::cout << "\n==== region sem checks ====\n";
         RegionNode* region = static_cast<RegionNode*>(v);
-        // std::cout  << " uid: " << region->getUId() << "\n";
+        std::cout  << " uid: " << region->getUId() << "\n";
         // std::cout << "region->getToken(): " << region->getToken() << "\n";
         // std::cout << "region->getId(): " << region->getId() << "\n";
         std::vector<Expr*> stmnts = region->getStatements();
@@ -483,7 +503,7 @@ namespace adl {
 //          if(s->getToken() == "histo") continue;
           Expr* cond = static_cast<CommandNode*>(s)->getCondition();
           // std::cout << "cond->getId(): " << cond->getId() << "\n";
-          if(s->getId() == "" || checkTables(drv,cond) == 0) { /* std::cout << "continuing\n"; continue; */ }
+          if(s->getId() == "" || checkTables(drv,cond) == 0) { /* std::cout << "continuing\n"; */ continue; }
           if(binOpCheck(cond) == 0) {
             BinNode* bin = getBinNode(cond);
             res = parseBinNode(drv, bin);
@@ -496,7 +516,7 @@ namespace adl {
       if(token == "DEFINE") {
         // std::cout << "\n==== define sem checks ====\n";
         DefineNode* dn = getDefineNode(v);
-        // std::cout  << " uid: " << dn->getUId() << "\n";
+        std::cout  << " uid: " << dn->getUId() << "\n";
         // std::cout << "define->getToken(): " << dn->getToken() << "\n";
         // std::cout << "define->getId(): " << dn->getId() << "\n";
         Expr* bdy = dn->getBody();
@@ -585,6 +605,10 @@ namespace adl {
     // std::cout << "\n==== PRINT FLOW CHART ====\n";
     fp = fopen("fc.dot", "w");
     fprintf(fp, "digraph print {\n");
+    fprintf(fp, "ordering = \"out\"");
+    // fprintf(fp, "overlap = prism");
+    // fprintf(fp, "overlap_scaling = 0.01");
+    fprintf(fp, "ratio = 1.618");
 
     ExprVector _ast = drv.ast;
     std::set<std::string> prints;
@@ -599,7 +623,7 @@ namespace adl {
         auto stmnts = rn->getStatements();
 
         std::string regName = rn->getId();
-        prints.insert(regName + "[shape = box, color = green]\n");
+        prints.insert(regName + "[shape= box, color=green]\n");
 
         for(auto&s: stmnts) {
           Expr* cond = static_cast<CommandNode*>(s)->getCondition();
@@ -648,9 +672,9 @@ namespace adl {
               prints.insert(on->getId() + " [color=\"blue\"]\n");
               prints.insert("  " + var + " -> " + on->getId() + " [color=\"blue\"]\n");
             }
-            // else {
-            //   // std::cout << "Not an object\n";
-            // }
+            else {
+              // std::cout << "Not an object\n";
+            }
           }
         }
       }

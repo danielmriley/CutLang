@@ -28,18 +28,6 @@ namespace adl {
     return parser.parse();
   }
 
-  int Driver::parse(std::string fileName) {
-    loc = 0;
-    // if(fileName == "") {
-    //   scanner.yyin = stdin;
-    // }
-    // else {
-    //   scanner.yyin = fopen(fileName.c_str(), "r");
-    // }
-
-    return parser.parse();
-  }
-
   void Driver::fillParentObjectsMap() {
     std::vector<Node*> newList;
 
@@ -75,6 +63,7 @@ namespace adl {
     typeTable["TRACK"] = track_t;
     typeTable["TRK"] = track_t;
     typeTable["COMB"] = combo_t;
+    typeTable["COMBO"] = combo_t;
     typeTable["CONSTIT"] = consti_t;
   }
 
@@ -101,7 +90,7 @@ namespace adl {
       rhsType = getBinType(binExpr->getRHS());
       if(lhsType == rhsType) return lhsType;
       else {
-        // // std::cout << "ERROR: There is a type mismatch\n";
+        std::cerr << "ERROR: There is a type mismatch\n";
         return "";
       }
     }
@@ -109,13 +98,11 @@ namespace adl {
   }
 
   std::string Driver::getObjectDeclType(std::string s) {
-    std::cout << "CHECKING FOR: " << s << "\n";
     for(auto &o: objectTable) {
       if(toupper(o.first) == toupper(s)) {
         return o.second;
       }
     }
-    std::cout << "SETTING NOT FOUND\n\n";
     return "NOT FOUND";
   }
 
@@ -162,11 +149,9 @@ namespace adl {
       std::string eUpper = adl::toupper(e.first);
       std::string idUpper = adl::toupper(id);
       if(eUpper == idUpper) {
-        // // std::cout << "Object " << id << " has been declared\n";
         return 0;
       }
     }
-    // // std::cout << "ERROR: Object " << id << " NOT declared\n";
     return 1;
   }
 
@@ -175,11 +160,9 @@ namespace adl {
       std::string eUpper = adl::toupper(e);
       std::string idUpper = adl::toupper(id);
       if(eUpper == idUpper) {
-        // // std::cout << "Variable " << id << " has been declared\n";
         return 0;
       }
     }
-    // // std::cout << "ERROR: Variable " << id << " NOT declared\n";
     return 1;
   }
 
@@ -188,11 +171,9 @@ namespace adl {
       std::string eUpper = adl::toupper(e);
       std::string idUpper = adl::toupper(id);
       if(eUpper == idUpper) {
-        // // std::cout << "Region " << id << " has been declared\n";
         return 0;
       }
     }
-    // // std::cout << "ERROR: Region " << id << " NOT declared\n";
     return 1;
   }
 
@@ -204,7 +185,7 @@ namespace adl {
     // Check that the definition isn't already in the table.
     for(auto e: definitionTable){
       if(e == id) {
-        // // std::cout << "ERROR: Variable " << id << "  has been previously defined\n";
+        std::cerr << "ERROR: Variable " << id << "  has been previously defined\n";
         return 1;
       }
     }
@@ -215,12 +196,11 @@ namespace adl {
   int Driver::addObject(std::string id,std::string takeType) {
     // Check that the definition isn't already in the table.
     for(auto e: objectTable){
-      if(toupper(e.first) == toupper(id)) {
-        // // std::cout << "ERROR: Object " << id << " has been previously defined\n";
+      if(e.first == id) {
+        std::cerr << "ERROR: Object " << id << " has been previously defined\n";
         return 1;
       }
     }
-    std::cout << "ADDING OBJECT : " << id << " TYPE : " << takeType << "\n";
     objectTable[id] = takeType;
     return 0;
   }
@@ -229,7 +209,7 @@ namespace adl {
     // Check that the definition isn't already in the table.
     for(auto e: regionTable){
       if(e == id) {
-        // // std::cout << "ERROR: Region " << id << "  has been previously defined\n";
+        std::cerr << "ERROR: Region " << id << "  has been previously defined\n";
         return 1;
       }
     }
@@ -308,7 +288,6 @@ namespace adl {
   void Driver::setDependencyChart() {
     // Fill out the dep chart by a traversal of the ast.
     // Set the types of Objects and Definitions.
-
     for(auto &n : ast) {
       if(n->getToken() == "DEFINE") {
         DefineNode* dn = static_cast<DefineNode*>(n);
@@ -316,7 +295,6 @@ namespace adl {
         if(body->getToken() == "FUNCTION"
            || body->getToken() == "REAL"
            || body->getToken() == "INT") {
-          std::cout << "Setting REAL\n";
           dn->setType("REAL");
         }
         if(binOpCheck(body) == 0) {
@@ -333,12 +311,10 @@ namespace adl {
             std::string var = cond->getId();
             std::string varDeclType = getObjectDeclType(var);
             if(varDeclType != "NOT FOUND" && varDeclType == "PARENT") {
-              std::cout << "PARENT TYPE\n";
               on->setObjectType(var);
               dependencyChart[var].push_back(on->getId());
             }
             else if(checkObjectTable(var) == 0) { // Here means its a declared type.
-              std::cout << "SEARCHING FOR TYPE TYPE\n";
               for(auto &p: dependencyChart) {
                 auto itr = std::find(p.second.begin(), p.second.end(), var);
                 if(itr != p.second.end()) {
@@ -349,23 +325,22 @@ namespace adl {
               }
             }
             else {
-              std::cout << "Not an object\n";
+              std::cerr << "Not an object\n";
             }
           }
         }
       }
     } // end loop.
-    std::cout << "\n==== dependency chart ====\n\n";
+    // std::cout << "\n==== dependency chart ====\n\n";
     for(auto &d : dependencyChart) {
-      std::cout << d.first << "\n  ";
+      // std::cout << d.first << "\n  ";
 
       for(auto &v : d.second) {
-        std::cout << v << ", ";
+        // std::cout << v << ", ";
       }
-      std::cout << "\n";
+      // std::cout << "\n";
     }
     // std::cout << "\n";
-    std::cout << "====               ====\n";
   }
 
   myParticle* Driver::createParticle(VarNode* vn) {
@@ -387,36 +362,66 @@ namespace adl {
   }
 
   Node* Driver::getFuncNode(Expr* f) {
-    Node* node;
-    FunctionNode* fn = getFunctionNode(f);
+    Node* node = nullptr;
+    FunctionNode* fn = getFunctionNode(f); // static cast helper.
     std::vector<myParticle*> particlesList;
     std::string funcName = fn->getId();
     funcName = tolower(funcName);
+    // std::cout << "LOOKING FOR FUNCTION: " << funcName << "\n";
 
     auto funcItr = function_map.find(funcName);
     auto lFuncItr = lfunction_map.find(funcName);
     auto uFuncItr = unfunction_map.find(funcName);
     auto sFuncItr = sfunction_map.find(funcName);
 
-    if(funcItr != function_map.end()) { // Particle attribute
-      ExprVector params = fn->getParams();
+    ExprVector params = fn->getParams();
+
+    if(funcName == "size") {
+      // std::cout << "IN SIZE FUNC BRANCH\n";
+      VarNode* param = getVarNode(params[0]);
+      auto ito = ObjectCuts->find(param->getId());
+      if(ito != ObjectCuts->end()) {
+        int type=((ObjectNode*)ito->second)->type;
+        node = new SFuncNode(count, type, ito->first, ito->second);
+      }
+    }
+    else if(funcItr != function_map.end()) { // Particle attribute
       for(auto& p : params) {
         VarNode* param = getVarNode(p);
         // Fill particlesList with the particles that are params.
-        std::cout << "PARAM: " << param->getId() << "\n";
-        std::cout << "TYPE: " << getObjectDeclType(param->getId()) << "\n";
+        // std::cout << "PARAM: " << param->getId() << "\n";
+        // std::cout << "TYPE: " << getObjectDeclType(param->getId()) << "\n";
         myParticle* part = createParticle(param);
         particlesList.push_back(part);
       }
       node = new FuncNode(function_map[funcName],particlesList,funcName);
     }
-    if(lFuncItr != lfunction_map.end()) {}
-    if(uFuncItr != unfunction_map.end()) { // Unary functions
-      auto p = fn->getParams();
-      node = new UnaryAONode(unfunction_map[funcName], makeNode(p[0]), funcName);
-    }
+    else if(lFuncItr != lfunction_map.end()) {
+      // std::cout << "NEED TO MAKE AN LFUNCNODE\n";
 
-    if(sFuncItr != sfunction_map.end()) { // "special"(?) functions
+      VarNode* param = getVarNode(params[1]);
+      // Fill particlesList with the particles that are params.
+      // std::cout << "PARAM: " << param->getId() << std::endl;;
+      // std::cout << "TYPE: " << getObjectDeclType(param->getId()) << "\n";
+      myParticle* part = createParticle(param);
+      particlesList.push_back(part);
+
+      auto partlist2 = particlesList;
+      particlesList.clear();
+
+      VarNode* param1 = getVarNode(params[1]);
+      // Fill particlesList with the particles that are params.
+      // std::cout << "PARAM: " << param1->getId()  << std::endl;;
+      // std::cout << "TYPE: " << getObjectDeclType(param1->getId()) << "\n";
+      part = createParticle(param1);
+      particlesList.push_back(part);
+
+      node = new LFuncNode(lfunction_map[funcName], partlist2, particlesList, funcName);
+    }
+    else if(uFuncItr != unfunction_map.end()) { // Unary functions
+      node = new UnaryAONode(unfunction_map[funcName], makeNode(params[0]), funcName);
+    }
+    else if(sFuncItr != sfunction_map.end()) { // "special"(?) functions
       if(funcName == "met" || funcName == "all" || funcName == "none") {
         node = new SFuncNode(sfunction_map[funcName], 1, funcName);
       }
@@ -424,6 +429,67 @@ namespace adl {
         node = new SFuncNode(sfunction_map[funcName], 3.1416, funcName);
       }
     }
+    // Start serach for match to Razor funcs
+    else if(funcName == "fmr") {
+      std::string name = params[0]->getId();
+      // std::cout << "INSERT FMR PARAM: " << name << "\n";
+      std::map<std::string,Node*>::iterator it = ObjectCuts->find(name);
+      int type = -1;
+
+      if(it == ObjectCuts->end()) {
+        std::cerr << "UNCAUGHT ERROR fmr" << name << "\n";
+      }
+      else {
+        // std::cout << "setting type\n";
+        type = ((ObjectNode*)it->second)->type;
+      }
+      // std::cout << "setting fmr SFuncNode\n";
+      node = new SFuncNode(userfuncB, fMR, type, name, it->second);
+    }
+    else if(funcName == "fmegajets") {
+      // std::cout << "INSERT FMEGAJETS\n";
+      std::string name = params[0]->getId();
+      std::map<std::string,Node*>::iterator it = ObjectCuts->find(name);
+      int type = -1;
+
+      if(it == ObjectCuts->end()) {
+        std::cerr << "UNCAUGHT ERROR fmegajets" << name << "\n";
+      }
+      else {
+        type = ((ObjectNode*)it->second)->type;
+      }
+      node = new SFuncNode(userfuncA, fmegajets, type, "MEGAJETS", it->second);
+    }
+    else if(funcName == "fmtr") {
+      // std::cout << "INSERT FMTR" << std::endl;
+      // std::cout << "PARAMS SIZE: " << params.size() << std::endl;
+      std::string name = params[1]->getId();
+      // std::cout << "PARAM NAME1: " << name << std::endl;
+      std::map<std::string,Node*>::iterator it = ObjectCuts->find(name);
+      std::map<std::string,std::vector<myParticle*> >::iterator it2;
+      int type = -1;
+
+      if(it == ObjectCuts->end()) {
+        std::cerr << "UNCAUGHT ERROR fmtr" << name << "\n";
+      }
+      else {
+        type = ((ObjectNode*)it->second)->type;
+      }
+
+      if(tolower(params[0]->getId()) == "met") {
+        // std::cout << "PARAM NAME2: " << params[0]->getId() << std::endl;
+        node = new SFuncNode(userfuncC, fMTR, type, name, it->second);
+      }
+      else {
+        it2 = ListParts->find(params[0]->getId());
+        node = new SFuncNode(userfuncD, fMTR2, type, name, it2->second, it->second);
+      }
+
+    }
+    else if(funcName == "fmt") {
+      // std::cout << "INSERT FMT\n";
+    }
+    // if(node == nullptr) // std::cout << "RETURNING A NULL FUNCTION NODE\n";
     return node;
   }
 
@@ -468,88 +534,95 @@ namespace adl {
       else if(bn->getOp() == "!=") {
         node = new BinaryNode(ne, makeNode(lhs), makeNode(rhs), bn->getOp());
       }
-      else if(bn->getOp() == "&&") {
+      else if(bn->getOp() == "&&" || toupper(bn->getOp()) == "AND") {
         node = new BinaryNode(LogicalAnd, makeNode(lhs), makeNode(rhs), bn->getOp());
       }
-      else if(bn->getOp() == "||") {
+      else if(bn->getOp() == "||" || toupper(bn->getOp()) == "OR") {
         node = new BinaryNode(LogicalOr, makeNode(lhs), makeNode(rhs), bn->getOp());
       }
     }
 
-    if(expr->getToken() == "FUNCTION") {
-      std::cout << "Making a FUNCTION NODE\n";
+    else if(expr->getToken() == "FUNCTION") {
+      // std::cout << "Making a FUNCTION NODE";
       FunctionNode* fn = getFunctionNode(expr);
-      std::cout << "  : " << fn->getId() << std::endl;
+      // std::cout << "  : " << fn->getId() << std::endl;
       node = getFuncNode(fn);
+      // if(node == nullptr) // std::cout << "AFTER FUNCTION MAKING NULLPTR\n";
     }
-
-    if(expr->getToken() == "ID") {
+    else if(toupper(expr->getId()) == "ALL"
+            || toupper(expr->getId()) == "NONE"
+            || toupper(expr->getId()) == "MET"
+            || toupper(expr->getId()) == "FHT") {
+      // std::cout << "Found ALL or NONE\n";
+      // std::cout << "  : " << expr->getId() << std::endl;
+      std::string param;
+      if(toupper(expr->getId()) == "FHT") param = "JET";
+      else param = expr->getId();
+      node = new SFuncNode(sfunction_map[tolower(expr->getId())], 1, param);
+    }
+    else if(expr->getToken() == "ID") {
       std::map<std::string, Node*>::iterator it;
       it = NodeVars->find(expr->getId());
       std::map<std::string, Node*>::iterator ito;
-      it = ObjectCuts->find(expr->getId());
+      ito = ObjectCuts->find(expr->getId());
       if(it != NodeVars->end()) {
-        std::cout << "Found a NODE\n";
-        std::cout << "  : " << expr->getId() << std::endl;
+        // std::cout << "Found a NODE" << std::endl;
+        // std::cout << "  : " << expr->getId() << std::endl;
         node = it->second;
       }
-      else if(ito != ObjectCuts->end()) {
-        std::cout << "Found an OBJ NODE\n";
-        std::cout << "  : " << expr->getId() << std::endl;
+      if(ito != ObjectCuts->end()) {
+        // std::cout << "Found an OBJ NODE\n";
+        // std::cout << "  : " << expr->getId() << std::endl;
         node = ito->second;
       }
-      else if(expr->getId() == "all" || expr->getId() == "none") {
-        std::cout << "Found ALL or NONE\n";
-        std::cout << "  : " << expr->getId() << std::endl;
-        node = new SFuncNode(sfunction_map[tolower(expr->getId())], 1, expr->getId());
-      }
     }
-
-    if(expr->getToken() == "REAL" || expr->getToken() == "INT") {
-      std::cout << "Making a VALUE NODE\n";
-      std::cout << "  : " << expr->getId() << std::endl;
+    else if(expr->getToken() == "REAL" || expr->getToken() == "INT") {
+      // // std::cout << "Making a VALUE NODE\n";
+      // // std::cout << "  : " << expr->getId() << std::endl;
       node = new ValueNode(expr->value());
     }
 
-    if(expr->getToken() == "ITE") {
-      std::cout << "Making a ITE NODE\n";
-      std::cout << "  : " << expr->getId() << std::endl;
+    else if(expr->getToken() == "ITE") {
+      // // std::cout << "Making a ITE NODE" << std::endl;
+      // // std::cout << "  : " << expr->getId() << std::endl;
       ITENode* ite = getITENode(expr);
-      node = new IfNode(makeNode(ite->getCondtion()), makeNode(ite->getThenBranch()), makeNode(ite->getElseBranch()), "if");
+      node = new IfNode(makeNode(ite->getCondition()), makeNode(ite->getThenBranch()), makeNode(ite->getElseBranch()), "if");
     }
-    if(node == nullptr) std::cout << "**** NODE IS NULLPTR **** => ";
-    std::cout << "  : " << expr->getId() << std::endl;
-    std::cout << "\n";
+    // if(node == nullptr) {
+    //   // std::cout << "**** NODE IS NULLPTR **** => ";
+    //   // std::cout << "  : " << expr->getId() << std::endl;
+    // }
+    // // std::cout << "\n";
     return node;
   }
 
   Node* Driver::createParentObject(std::string id) {
     id = toupper(id);
-    std::cout << "createParentObject ID: " << id << std::endl;;
+    // std::cout << "NAME: " << id << std::endl;;
     Node* node = nullptr;
     std::vector<Node*> newList;
-    if(id == "ELE" || id == "ELECTRON") {
+    if(toupper(id) == "ELE" || toupper(id) == "ELECTRON") {
       node = new ObjectNode("ELE", NULL, createNewEle, newList, "obj ELE");
     }
-    else if(id == "MUO" || id == "MUON") {
+    else if(toupper(id) == "MUO" || toupper(id) == "MUON") {
       node = new ObjectNode("MUO", NULL, createNewMuo, newList, "obj MUO");
     }
-    else if(id == "PHO" || id == "PHOTON") {
+    else if(toupper(id) == "PHO" || toupper(id) == "PHOTON") {
       node = new ObjectNode("PHO", NULL, createNewPho, newList, "obj PHO");
     }
-    else if(id == "TRK" || id == "TRACK") {
+    else if(toupper(id) == "TRK" || toupper(id) == "TRACK") {
       node = new ObjectNode("Track", NULL, createNewTrack, newList, "obj TRACK");
     }
-    else if(id == "FJET" || id == "FATJET") {
+    else if(toupper(id) == "FJET" || toupper(id) == "FATJET") {
       node = new ObjectNode("FJET", NULL, createNewFJet, newList, "obj FatJet");
     }
-    else if(id == "TAU") {
+    else if(toupper(id) == "TAU") {
       node = new ObjectNode("TAU", NULL, createNewTau, newList, "obj TAU");
     }
-    else if(id == "TRUTH") {
+    else if(toupper(id) == "TRUTH") {
       node = new ObjectNode("Truth", NULL, createNewTruth, newList, "obj Truth");
     }
-    else if(id == "JET") {
+    else if(toupper(id) == "JET") {
       node = new ObjectNode("JET", NULL, createNewJet, newList, "obj JET");
     }
     return node;
@@ -560,6 +633,7 @@ namespace adl {
 
     Node* parent = nullptr;
     Node* obj = nullptr;
+    std::string parentStr;
     std::vector<Node*> newList;
     for(auto& s: stmnts) {
       if(s->getToken() == "TAKE") {
@@ -568,7 +642,9 @@ namespace adl {
         if(cond->getToken() == "ID") {
           VarNode* vn = getVarNode(cond);
           std::string type = getObjectDeclType(vn->getId());
-          if(type == "PARENT") {
+          if(toupper(type) == "PARENT") {
+            parentStr = cond->getId();
+            // // std::cout << "CREATED PARENT NODE\n";
             parent = createParentObject(cond->getId());
             // Fill up newList.
             // obj = new ObjectNode(on->getId(), parent, NULL, newList, on->getId());
@@ -579,13 +655,13 @@ namespace adl {
             it = ObjectCuts->find(vn->getId());
             if(it != ObjectCuts->end()) {
               // Need to fill newList with the nodes from the object statements.
+              // // std::cout << "FOUND NON PARENT INHERITANCE\n";
               parent = it->second;
               // obj = new ObjectNode(on->getId(), parent, NULL, newList, on->getId());
               // ObjectCuts->insert(std::make_pair(on->getId(), obj));
             }
             else {
-              std::cerr << "***** An ERROR that has not previously been caught. ";
-              std::cerr << "TOKEN: " << cond->getToken() << "\n";
+              std::cerr << "***** An ERROR that has not previously been caught.\n";
             }
           }
         }
@@ -595,6 +671,8 @@ namespace adl {
       }
       else {
         CommandNode* cn = getCommandNode(s);
+        Expr* condition = cn->getCondition();
+        // // std::cout << "condition is: " << condition->getToken() << " | " << condition->getId() << " |\n";
         newList.push_back(makeNode(cn->getCondition()));
       }
     }
@@ -612,7 +690,7 @@ namespace adl {
       }
       else {
         VarNode* vn = getVarNode(lhs);
-        std::cout << "VAR: " << vn->getId() << std::endl;
+        // // std::cout << "VAR: " << vn->getId() << std::endl;
         myParticle* part = createParticle(vn);
         particles.push_back(part);
       }
@@ -621,14 +699,11 @@ namespace adl {
       }
       else {
         VarNode* vn = getVarNode(rhs);
-        std::cout << "VAR: " << vn->getId() << std::endl;
+        // // std::cout << "VAR: " << vn->getId() << std::endl;
         myParticle* part = createParticle(vn);
         particles.push_back(part);
       }
     }
-    // else {
-    //   // std::cout << "NEEDS TO BE IMPLEMENTED!" << std::endl;
-    // }
   }
 
   void Driver::processRegion(RegionNode* rn) {
@@ -637,7 +712,15 @@ namespace adl {
     for(auto& s: stmnts) {
       CommandNode* cn = getCommandNode(s);
     //  if(cn->getToken() == "SELECT") {
-        NodeCuts->insert(std::make_pair(++cutcount, makeNode(cn->getCondition())));
+        // // std::cout << "HERE" << std::endl;
+        Expr* cond = cn->getCondition();
+        Node* node = nullptr;
+        if(cond->getToken() == "ID") {
+          continue;
+        }
+        node = makeNode(cn->getCondition());
+        // if(node == nullptr) // std::cout << "inserted a NULLPTR\n";
+        NodeCuts->insert(std::make_pair(++cutcount, node));
       //}
     }
   }
@@ -653,7 +736,7 @@ namespace adl {
                        std::map<std::string, std::vector<cntHisto> >* _cntHistos,
                        std::map<int, std::vector<std::string> > *_systmap)
   {
-    std::cout << "\n==== ast2cuts ====\n\n";
+    // // std::cout << "\n==== ast2cuts ====\n\n";
 
     fillFuncMaps(function_map, lfunction_map, unfunction_map, sfunction_map);
     // for(auto &fm: function_map) // std::cout << fm.first << "\n";
@@ -664,37 +747,45 @@ namespace adl {
         DefineNode* dn = static_cast<DefineNode*>(a);
         VarNode* varNode = getVarNode(getDefineNode(a)->getVar());
         std::string name = varNode->getId();
-        std::cout << "DEF NAME: " << name << "\n";
-        std::cout << "DEF TYPE: " << varNode->getType() << "\n";
+        // // std::cout << "DEF NAME: " << name << "\n";
+        // // std::cout << "DEF TYPE: " << varNode->getType() << "\n";
         // pnum = 0;
         parts->push_back(name + " : " + "");
 
         if(varNode->getType() == "REAL") {
           // Make a node out of the RHS of the = or :
-          Node* node;
+          Node* node = nullptr;
+          // // std::cout << "DN BODY: " << dn->getBody()->getId() << "\n";
           node = makeNode(dn->getBody());
+          if(node == nullptr) // std::cout << "inserted a NULLPTR\n";
           NodeVars->insert(std::make_pair(name, node));
+          auto it = NodeVars->find(name);
+          // if(it != NodeVars->end()) {
+          //   // std::cout << "INSERTED: " << name << "\n\n";
+          // }
         }
         else { // Means it's a particle definition.
-          std::cout << "*** ADDING TO LISTPARTS ***\n";
+          // // std::cout << "*** ADDING TO LISTPARTS ***\n";
           std::vector<myParticle*> particles;
           gatherParticles(dn->getBody(), particles);
+          // for(auto& p : particles) if(p == nullptr) // std::cout << "inserted a NULLPTR\n";
           ListParts->insert(std::make_pair(name, particles));
         }
       }
       if(a->getToken() == "REGION") {
         RegionNode *rn = getRegionNode(a);
         std::string name = rn->getId();
-        std::cout << "REG NAME: " << name << "\n";
+        // // std::cout << "REG NAME: " << name << "\n";
         processRegion(rn);
 
       }
       if(a->getToken() == "OBJECT") {
         astObjectNode *on = getObjectNode(a);
         std::string name = on->getId();
-        std::cout << "OBJ NAME: " << name << "\n";
-        std::cout << "OBJ TYPE: " << on->getType() << "\n";
+        // // std::cout << "OBJ NAME: " << name << "\n";
+        // // std::cout << "OBJ TYPE: " << on->getType() << "\n";
         processObject(on);
+        // // std::cout << "END OBJECT PROCESSING\n";
 
       }
     }
@@ -710,21 +801,15 @@ namespace adl {
     *_cntHistos = *cntHistos;
     *_systmap = *systmap;
 
-    std::cout << "\n\nPART: ";
-    for(auto& l: *ListParts) {
-      std::cout << l.first << ", ";
-    }
-    std::cout << "\n\nOBJ: ";
-    for(auto& l: *ObjectCuts) {
-      std::cout << l.first << ", ";
-      if(l.second == nullptr) std::cout << " second is NULLPTR ";
-    }
-    std::cout << "\n\nNODE: ";
-    for(auto& l: *NodeVars) {
-      std::cout << l.first << ", ";
-      if(l.second == nullptr) std::cout << " second is NULLPTR ";
-    }
-    std::cout << "\n";
+
+
+    // // std::cout << "\n\nPART: ";
+    // for(auto& l: *_ListParts) // std::cout << l.first << ", ";
+    // // std::cout << "\n\nOBJ: ";
+    // for(auto& l: *_ObjectCuts) // std::cout << l.first << ", ";
+    // // std::cout << "\n\nNODE: ";
+    // for(auto& l: *_NodeVars) // std::cout << l.first << ", ";
+    // // std::cout << "\n";
 
 
     return 0;
@@ -828,12 +913,18 @@ namespace adl {
     sfunction_map["btagsf"] = btagsf;
     sfunction_map["xslumicorrsf"] = xslumicorrsf;
     sfunction_map["count"] = count;
-    sfunction_map["getIndex"] = getIndex;
+    sfunction_map["size"] = count;
+    sfunction_map["getindex"] = getIndex;
     sfunction_map["met"] = met;
     sfunction_map["metsig"] = metsig;
     sfunction_map["hlt_iso_mu"] = hlt_iso_mu;
     sfunction_map["hlt_trg"] = hlt_trg;
-    sfunction_map["ht"] = ht;
+    sfunction_map["fht"] = ht;
+
+    // razorfunction_map["fmr"] = fMR;
+    // razorfunction_map["fmegajets"] = fmegajets;
+    // razorfunction_map["fmr"] =
+    // razorfunction_map["fmr"] =
 
   }
 } // end namespace adl

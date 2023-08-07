@@ -36,7 +36,7 @@ extern bool fctrlc;
 extern TTreeReader *ttreader;
 
 // <<< "include" anchor <<<
-   
+
 void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nentries )
 {
 
@@ -44,9 +44,9 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 
     fChain->GetEntry(j);
     ttreader->Next();
-    vector<dbxMuon>         muons; 
-    vector<dbxElectron> electrons; 
-    vector<dbxPhoton>     photons; 
+    vector<dbxMuon>         muons;
+    vector<dbxElectron> electrons;
+    vector<dbxPhoton>     photons;
     vector<dbxJet>      jets;
     vector<dbxTau>      taus;
     vector<dbxJet>     ljets;
@@ -66,9 +66,9 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     map<string, vector<dbxParticle> >combo_map;
     map<string, vector<dbxParticle> >constits_map;
     map<string, TVector2            >  met_map;
-    
+
     evt_data anevt;
-    
+
     //temporary variables
     TVector2 met;
 
@@ -115,7 +115,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 
     for (int j=0; j<MuonTight_size && Tcount<MuonTight_size; j++) {
         cout << "M T:"<<MuonTight_T[j]<< " "<<j <<endl;
-        if (Muon_T[i] == MuonTight_T[j] ) { 
+        if (Muon_T[i] == MuonTight_T[j] ) {
            cout << "tight set\n";
            adbxm->setIsTight (true);
            Tcount++;
@@ -123,7 +123,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<MuonMedium_size && Mcount<MuonMedium_size; j++) {
         cout << "M M:"<<MuonMedium_T[j]<< " "<<j <<endl;
-        if (Muon_T[i] == MuonMedium_T[j] ) { 
+        if (Muon_T[i] == MuonMedium_T[j] ) {
            cout << "Medium set\n";
            adbxm->setIsMedium (true);
            Mcount++;
@@ -131,7 +131,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<MuonLoose_size && Lcount<MuonLoose_size; j++) {
         cout << "M L:"<<MuonLoose_T[j]<< " "<<j <<endl;
-        if (Muon_T[i] == MuonLoose_T[j] ) { 
+        if (Muon_T[i] == MuonLoose_T[j] ) {
            cout << "Loose set\n";
            adbxm->setIsLoose (true);
            Lcount++;
@@ -145,7 +145,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     DEBUG("MUON OK\n")
 
     // <<< MUON <<<
-                        
+
     // >>> ELECTRON >>>
 
     dbxElectron *adbxe;
@@ -172,10 +172,10 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 		adbxe->addAttribute(Electron_ErrorD0[i]);
 		adbxe->addAttribute(Electron_ErrorDZ[i]);
 //		adbxe->addAttribute(Electron_T[i]);
-		
+
     for (int j=0; j<ElectronTight_size && Tcount<ElectronTight_size; j++) {
         cout << "E T:"<<ElectronTight_T[j]<< " "<<j <<endl;
-        if (Electron_T[i] == ElectronTight_T[j] ) { 
+        if (Electron_T[i] == ElectronTight_T[j] ) {
            cout << "tight set\n";
            adbxe->setIsTight (true);
            Tcount++;
@@ -183,7 +183,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<ElectronMedium_size && Mcount<ElectronMedium_size; j++) {
         cout << "E M:"<<ElectronMedium_T[j]<< " "<<j <<endl;
-        if (Electron_T[i] == ElectronMedium_T[j] ) { 
+        if (Electron_T[i] == ElectronMedium_T[j] ) {
            cout << "Medium set\n";
            adbxe->setIsMedium (true);
            Mcount++;
@@ -191,7 +191,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<ElectronLoose_size && Lcount<ElectronLoose_size; j++) {
         cout << "E L:"<<ElectronLoose_T[j]<< " "<<j <<endl;
-        if (Electron_T[i] == ElectronLoose_T[j] ) { 
+        if (Electron_T[i] == ElectronLoose_T[j] ) {
            cout << "Loose set\n";
            adbxe->setIsLoose (true);
            Lcount++;
@@ -206,7 +206,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     DEBUG("ELECTRON norm OK\n")
 
     // <<< ELECTRON <<<
-                        
+
     // >>> PHOTON >>>
 
     dbxPhoton *adbxp;
@@ -230,10 +230,10 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 		adbxp->addAttribute(Photon_Status[i]);
 //		adbxp->addAttribute(Photon_T[i]);
     cout << "P N:"<<Photon_T[j]<< " "<<j <<endl;
-		
+
     for (int j=0; j<PhotonTight_size && Tcount<PhotonTight_size; j++) {
         cout << "P T:"<<PhotonTight_T[j]<< " "<<j <<endl;
-        if (Photon_T[i] == PhotonTight_T[j] ) { 
+        if (Photon_T[i] == PhotonTight_T[j] ) {
            cout << "tight set\n";
            adbxp->setIsTight (true);
            Tcount++;
@@ -241,7 +241,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<PhotonMedium_size && Mcount<PhotonMedium_size; j++) {
         cout << "P M:"<<PhotonMedium_T[j]<< " "<<j <<endl;
-        if (Photon_T[i] == PhotonMedium_T[j] ) { 
+        if (Photon_T[i] == PhotonMedium_T[j] ) {
            cout << "Medium set\n";
            adbxp->setIsMedium (true);
            Mcount++;
@@ -249,7 +249,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     }
     for (int j=0; j<PhotonLoose_size && Lcount<PhotonLoose_size; j++) {
         cout << "P L:"<<PhotonLoose_T[j]<< " "<<j <<endl;
-        if (Photon_T[i] == PhotonLoose_T[j] ) { 
+        if (Photon_T[i] == PhotonLoose_T[j] ) {
            cout << "Loose set\n";
            adbxp->setIsLoose (true);
            Lcount++;
@@ -264,7 +264,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     DEBUG("PHOTON OK\n")
 
     // <<< PHOTON <<<
-                        
+
     // >>> JET >>>
 
     Tcount=0;
@@ -279,11 +279,11 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
         adbxj->set_isTautagged( (bool)JetPUPPI_TauTag[i]); // tau tag
         adbxj->setParticleIndx(i);
 //	adbxj->setClusterE(JetPUPPI_EhadOverEem[i]);
-        adbxj->setCharge(JetPUPPI_Charge[i]); 
-// constits need to be added 
+        adbxj->setCharge(JetPUPPI_Charge[i]);
+// constits need to be added
     for (int j=0; j<JetPUPPITight_size && Tcount<JetPUPPITight_size; j++) {
         cout << "j T:"<<JetPUPPITight_T[j]<< " "<<j <<endl;
-        if (JetPUPPI_T[i] == JetPUPPITight_T[j] ) { 
+        if (JetPUPPI_T[i] == JetPUPPITight_T[j] ) {
            cout << "tight set\n";
            adbxj->setIsTight (true);
            Tcount++;
@@ -292,7 +292,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 /*
     for (unsigned int j=0; j<JetPUPPIMedium_size && Mcount<JetPUPPIMedium_size; j++) {
         cout << "j M:"<<JetPUPPIMedium_T[j]<< " "<<j <<endl;
-        if (JetPUPPI_T[i] == JetPUPPIMedium_T[j] ) { 
+        if (JetPUPPI_T[i] == JetPUPPIMedium_T[j] ) {
            cout << "Medium set\n";
            adbxj->setIsMedium (true);
            Mcount++;
@@ -301,7 +301,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 */
     for (int j=0; j<JetPUPPILoose_size && Lcount<JetPUPPILoose_size; j++) {
         cout << "j L:"<<JetPUPPILoose_T[j]<< " "<<j <<endl;
-        if (JetPUPPI_T[i] == JetPUPPILoose_T[j] ) { 
+        if (JetPUPPI_T[i] == JetPUPPILoose_T[j] ) {
            cout << "Loose set\n";
            adbxj->setIsLoose (true);
            Lcount++;
@@ -314,8 +314,8 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     DEBUG("JET OK\n")
 
     // <<< JET <<<
-    
-                    
+
+
     /*
     tau not found!!!
     // >>> TAU >>>
@@ -339,7 +339,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     // <<< TAU <<<
     tau not found!!!
     */
-                    
+
     // >>> LJET >>>
 
     dbxJet *adbxlj;
@@ -354,7 +354,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
 //	adbxlj->setClusterE(JetPUPPIAK8_EhadOverEem[i]);
 
         adbxlj->addAttribute( 0);   // 0
-        adbxlj->addAttribute( 0);  // 1 
+        adbxlj->addAttribute( 0);  // 1
         adbxlj->addAttribute( 0); // this is dummy, as we dont have isolation variable for GEN particles(unlike e,m,photon)
         adbxlj->addAttribute( 0); // 3
         adbxlj->addAttribute( 0);  //4
@@ -371,7 +371,7 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     DEBUG("LJET OK\n")
 
     // <<< LJET <<<
-                    
+
     /*
     truth not found!!!
     // >>> TRUTH >>>
@@ -395,12 +395,12 @@ void DELPHES2::GetPhysicsObjects( Long64_t j, AnalysisObjects *a0, Long64_t nent
     // <<< TRUTH <<<
     truth not found!!!
     */
-                    
-    
+
+
     // >>> MET >>>
     met.SetMagPhi(PuppiMissingET_MET[0],  PuppiMissingET_Phi[0]); //gev already
     // <<< MET <<<
-        
+
 // FILLED CONTENT END
 
 //------------ auxiliary information -------
@@ -423,10 +423,10 @@ anevt.vxpType=0;
 anevt.lar_Error=0;
 anevt.core_Flags=0;
 anevt.maxEvents=nentries;
-    
+
 
     DEBUG("Filling finished\n")
-    
+
     muos_map.insert( pair <string,vector<dbxMuon>     > ("MUO",         muons) );
     eles_map.insert( pair <string,vector<dbxElectron> > ("ELE",     electrons) );
     taus_map.insert( pair <string,vector<dbxTau>      > ("TAU",          taus) );
@@ -440,7 +440,7 @@ anevt.maxEvents=nentries;
     met_map.insert( pair <string,TVector2>             ("MET",           met) );
 
    *a0={muos_map, eles_map, taus_map, gams_map, jets_map, ljets_map, truth_map,track_map, combo_map, constits_map, met_map, anevt};
-    
+
     // <<< GetPhysicsObjects <<<
 
 }
@@ -459,10 +459,10 @@ void DELPHES2::Loop(analy_struct aselect, char *extname)
     map < string, string > syst_names;
 
     AnalysisController aCtrl(&aselect, syst_names);
-    aCtrl.Initialize(extname);
+    aCtrl.Initialize(extname); // This ultimately calls the parser.
     cout << "End of analysis initialization"<<endl;
     // <<< "if (fChain == 0) return" anchor <<<
-    
+
 
 
     // >>> "Long64_t nentries" anchor >>>
@@ -497,4 +497,3 @@ void DELPHES2::Loop(analy_struct aselect, char *extname)
 
     aCtrl.Finalize();
 }
-    

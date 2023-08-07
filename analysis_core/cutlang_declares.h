@@ -23,6 +23,7 @@
 #include "LoopNode.h"
 #include "ObjectNode.hpp"
 #include "SaveNode.h"
+#include "Razorfunc.h"
 
 // namespace adl {
   // class TLorentzVector;
@@ -233,6 +234,24 @@
   void createNewTruth (AnalysisObjects* ao,std::vector<Node*> *criteria,std::vector<myParticle *>* particles, std::string name, std::string basename);
   void createNewTrack (AnalysisObjects* ao,std::vector<Node*> *criteria,std::vector<myParticle *>* particles, std::string name, std::string basename);
 
+  std::vector<TLorentzVector> fmegajets(std::vector<TLorentzVector> myjets, int p1);
+  // MR
+  double fMR(std::vector<TLorentzVector> j);
+  // MTR
+  double fMTR(std::vector<TLorentzVector> j, TVector2 amet);
+  double fMTR2(std::vector<TLorentzVector> j, TLorentzVector amet);
+  // MT
+  double fMT(std::vector<TLorentzVector> v);
+
+  //User Funcs
+  double userfuncA(AnalysisObjects* ao, std::string s, int id, std::vector<TLorentzVector> (*func)(std::vector<TLorentzVector> jets, int p1) );
+  double userfuncB(AnalysisObjects* ao, std::string s, int id, double (*func)(std::vector<TLorentzVector> jets ) );
+  double userfuncC(AnalysisObjects* ao, std::string s, int id, double (*func)(std::vector<TLorentzVector> jets, TVector2 amet ) );
+  double userfuncD(AnalysisObjects* ao, std::string s, int id, TLorentzVector alv, double (*func)(std::vector<TLorentzVector> jets, TLorentzVector amet ));
+  double userfuncE(AnalysisObjects* ao, std::string s, int id, TLorentzVector l1, TLorentzVector l2,  TLorentzVector m1,
+                                                              double (*func)(TLorentzVector la, TLorentzVector lb, TLorentzVector amet ) );
+  double userfuncF(AnalysisObjects* ao, std::string s, int id, double l1, double l2,  double m1, double l3,
+                                                              double (*func)(double la, double lb, double amet, double lab ) );
 
 
 

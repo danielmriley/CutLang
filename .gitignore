@@ -16,3 +16,6 @@ CLA/CLA.C
 CLA/CLA.exe
 .DS_Store
 .github/previous/*
+
+*.dot
+*.root

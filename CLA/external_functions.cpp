@@ -53,12 +53,12 @@ namespace adl {
     while(fin >> input) {
       input = toupper(input);
       if(id == input) {
-        std::cout << id << " is a PROPERTY\n";
+        std::cerr << id << " is a PROPERTY\n";
         fin.close();
         return 0;
       }
     }
-    std::cout << id << " is not a property\n";
+    std::cerr << id << " is not a property\n";
     fin.close();
     return 1;
   }
@@ -75,12 +75,12 @@ namespace adl {
     while(fin >> input) {
       input = toupper(input);
       if(id == input) {
-        std::cout << id << " is a predefined OBJECT\n";
+        std::cerr << id << " is a predefined OBJECT\n";
         fin.close();
         return 0;
       }
     }
-    std::cout << id << " is not a predefined OBJECT\n";
+    std::cerr << id << " is not a predefined OBJECT\n";
     fin.close();
     return 1;
   }
