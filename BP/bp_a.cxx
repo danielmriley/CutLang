@@ -258,7 +258,6 @@ int BPdbxA::readAnalysisParams() {
          // cout << "Offending text is: "<< yytext<<"\n";
          exit (99);
        }
-       int dr = 0;
        cout << "We have "<<NodeCuts.size() << " CutLang Cuts, "<<ObjectCuts.size()  <<" CutLang objects and ";
        cout << BinCuts.size() << " Bins\n";
        TRGe    = TRGValues[0];

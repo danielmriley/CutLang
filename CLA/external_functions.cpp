@@ -26,7 +26,7 @@ namespace adl {
   int check_function_table(std::string id) {
     std::ifstream fin("CLA/ext_lib.txt");
     if(!fin.good()) {
-      std::cerr << "ERROR: FILE NOT FOUND.\n";
+      // std::cerr << "ERROR: FILE NOT FOUND.\n";
     }
     std::string input;
 
@@ -45,7 +45,7 @@ namespace adl {
   int check_property_table(std::string id) {
     std::ifstream fin("CLA/property_vars.txt");
     if(!fin.good()) {
-      std::cerr << "ERROR: FILE NOT FOUND.\n";
+      // std::cerr << "ERROR: FILE NOT FOUND.\n";
     }
     std::string input;
     id = toupper(id);
@@ -53,12 +53,12 @@ namespace adl {
     while(fin >> input) {
       input = toupper(input);
       if(id == input) {
-        std::cerr << id << " is a PROPERTY\n";
+        // std::cerr << id << " is a PROPERTY\n";
         fin.close();
         return 0;
       }
     }
-    std::cerr << id << " is not a property\n";
+    // std::cerr << id << " is not a property\n";
     fin.close();
     return 1;
   }
@@ -67,7 +67,7 @@ namespace adl {
 //    std::string path = ""  // Need to find the dir that the libraries are in.
     std::ifstream fin("CLA/ext_objs.txt");
     if(!fin.good()) {
-      std::cerr << "ERROR: FILE NOT FOUND.\n";
+      // std::cerr << "ERROR: FILE NOT FOUND.\n";
     }
     std::string input;
     id = toupper(id);
@@ -75,12 +75,12 @@ namespace adl {
     while(fin >> input) {
       input = toupper(input);
       if(id == input) {
-        std::cerr << id << " is a predefined OBJECT\n";
+        // std::cerr << id << " is a predefined OBJECT\n";
         fin.close();
         return 0;
       }
     }
-    std::cerr << id << " is not a predefined OBJECT\n";
+    // std::cerr << id << " is not a predefined OBJECT\n";
     fin.close();
     return 1;
   }

@@ -493,7 +493,7 @@ namespace adl {
       if(token == "REGION") {
         // std::cout << "\n==== region sem checks ====\n";
         RegionNode* region = static_cast<RegionNode*>(v);
-        std::cout  << " uid: " << region->getUId() << "\n";
+        // std::cout  << " uid: " << region->getUId() << "\n";
         // std::cout << "region->getToken(): " << region->getToken() << "\n";
         // std::cout << "region->getId(): " << region->getId() << "\n";
         std::vector<Expr*> stmnts = region->getStatements();
@@ -516,7 +516,7 @@ namespace adl {
       if(token == "DEFINE") {
         // std::cout << "\n==== define sem checks ====\n";
         DefineNode* dn = getDefineNode(v);
-        std::cout  << " uid: " << dn->getUId() << "\n";
+        // std::cout  << " uid: " << dn->getUId() << "\n";
         // std::cout << "define->getToken(): " << dn->getToken() << "\n";
         // std::cout << "define->getId(): " << dn->getId() << "\n";
         Expr* bdy = dn->getBody();

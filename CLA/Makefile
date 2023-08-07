@@ -77,7 +77,7 @@ endif
 
 .PHONY: clean cleanall auxiliaries softlinks
 
-CLA.exe : checks auxiliaries $(OBJS_1) $(OBJS_2) softlinks
+CLA.exe : $(OBJS_2) checks auxiliaries $(OBJS_1) softlinks
 	sed "s/XXXXYYYYZZZZ/$(TODAYDATE)/g"  CLA.Q > CLA.C ; $(CXX) $(CXXFLAGS) $(INCLUDES) -c CLA.C
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS_1) $(OBJS_2) CLA.o $(SUBDIRLOC)analysis_core/*.o $(CXXFLAGS)  $(LIBS)
 
@@ -92,13 +92,6 @@ ifeq (${LEXEXE},1)
 endif
 	@echo yacc:$(YACCV) bison:$(BISONV) executable:$(BISEXE)
 	@echo lex:$(LEXV) flex:$(FLEXV) executable:$(LEXEXE)
-
-
-Parser.o : parse.y
-	$(BISEXE) -d -v -o Parser.cpp parser.y; $(CXX) $(CXXFLAGS) $(INCLUDES) -c Parser.cpp
-
-Scanner.o : parse.l
-	$(LEXEXE) -s -o Scanner.cpp scanner.l ; $(CXX) $(INCLUDES) -c Scanner.cpp
 
 auxiliaries:
 	$(MAKE) -C $(SUBDIRLOC)analysis_core
@@ -118,6 +111,13 @@ softlinks: auxiliaries
 
 $(ANLOBJS): %.o : %.cxx
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
+
+
+Parser.o : parse.y
+	$(BISEXE) -d -v -o Parser.cpp parser.y; $(CXX) $(CXXFLAGS) $(INCLUDES) -c Parser.cpp
+
+Scanner.o : parse.l
+	$(LEXEXE) -s -o Scanner.cpp scanner.l ; $(CXX) $(INCLUDES) -c Scanner.cpp
 
 # clean
 clean:
