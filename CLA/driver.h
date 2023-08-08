@@ -14,12 +14,15 @@
 #include <cstdio>
 #include <fstream>
 #include <algorithm>
+#include <filesystem>
 
 class Node;
 class myParticle;
 struct cntHisto;
 class dbxParticle;
 class AnalysisObjects;
+
+namespace fs = std::filesystem;
 
 namespace adl {
 
@@ -38,10 +41,15 @@ namespace adl {
     Driver(std::istream *in);
 
     int parse();
+    int parse(std::string);
     int visitAST(int (*f)(ExprVector& ast));
     void fillTypeTable();
     void setDependencyChart();
     void fillParentObjectsMap();
+    int check_function_table(std::string id);
+    int check_object_table(std::string id);
+    int check_property_table(std::string id);
+
 
     void loadFromLibraries();
     std::string getBinType(Expr* expr);
@@ -68,7 +76,7 @@ namespace adl {
 
     std::vector<Expr*> ast;
     // map of object name to either PARENT (predefined) or TAKE type (declared)
-    std::map<std::string,std::string> objectTable;
+    std::map<std::string,std::string> objectTable; // objectTable[NAME] = TYPE
     std::vector<std::string> regionTable;
 //    std::vector<std::string> regionVarsTable;
     std::vector<std::string> definitionTable;
@@ -96,6 +104,11 @@ namespace adl {
     Parser parser;
     unsigned int loc;
     unsigned int location();
+
+    fs::path libPath;
+    std::string objsLib = "ext_objs.txt";
+    std::string functionsLib = "ext_lib.txt";
+    std::string propertiesLib = "property_vars.txt";
 
     std::map<std::string, PropFunction> function_map;
     std::map<std::string, LFunction> lfunction_map;
