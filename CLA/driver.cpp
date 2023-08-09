@@ -179,6 +179,7 @@ namespace adl {
     while(fin >> input) {
       input = toupper(input);
       addObject(input,std::string("PARENT"));
+      dependencyChart[input].push_back(input);
     }
     fin.close();
   }
@@ -450,12 +451,23 @@ namespace adl {
     DEBUG("\n");
   }
 
+  std::string Driver::getVarNodeType(std::string vn) {
+    for(auto& chart: dependencyChart) {
+      for(auto& v: chart.second) {
+        if(toupper(v) == toupper(vn)) {
+          return chart.first;
+        }
+      }
+    }
+    return "";
+  }
+
   myParticle* Driver::createParticle(VarNode* vn) {
     myParticle* part = new myParticle;
-    part->type = typeTable[toupper(vn->getType())];
-    DEBUG("SIZE: " << vn->getAccSize() << std::endl);
+    std::string type = getVarNodeType(vn->getId());
+    DEBUG("VARTYPE: " << type << "\n");
+    part->type = typeTable[toupper(type)];
     std::vector<int> ind = vn->getAccessor();
-    DEBUG("createParticle" << std::endl);
     if(ind.size() > 0) {
       part->index = ind[0]; // DR: temporary. Needs to accomodate range of indecies.
     }
@@ -463,7 +475,8 @@ namespace adl {
       part->index = 6213;
     }
     DEBUG("INDEX: " << part->index << std::endl);
-    part->collection = vn->getType();
+    part->collection = vn->getId();
+    DEBUG("COLLECTION: " << part->collection << std::endl);
 
     return part;
   }
@@ -489,6 +502,11 @@ namespace adl {
       if(ito != ObjectCuts->end()) {
         int type=((ObjectNode*)ito->second)->type;
         node = new SFuncNode(count, type, ito->first, ito->second);
+      }
+      else {
+        std::vector<myParticle*> newList;
+        newList.push_back(createParticle(param));
+        node = new SFuncNode(count, newList[0]->type, newList[0]->collection);
       }
     }
     else if(funcItr != function_map.end()) { // Particle attribute

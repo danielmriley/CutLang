@@ -249,6 +249,37 @@ int BPdbxA::readAnalysisParams() {
        }
        if(retval == 0) std::cout << "finished\n";
        else std::cout << "ERROR\n";
+        std::cout << "\n\nPART: ";
+        for(auto& l: ListParts) {
+          std::cout << l.first << ", ";
+          if(l.second[0] == nullptr) std::cout << "NULLPTR";
+        }
+        std::cout << "\n\nOBJ: ";
+        for(auto& l: ObjectCuts) {
+          std::cout << l.first << ", ";
+          if(l.second == nullptr) std::cout << "NULLPTR";
+        }
+        std::cout << "\n\nNODE: ";
+        for(auto& l: NodeVars) {
+          std::cout << l.first << ", ";
+          if(l.second == nullptr) std::cout << "NULLPTR";
+        }
+        std::cout << "\n\nCUTS: ";
+        for(auto& l: NodeCuts) {
+          std::cout << l.first << ", ";
+          if(l.second == nullptr) std::cout << "NULLPTR";
+        }
+       std::cout << "\nParts: " << parts.size() << "\n";
+       std::cout << "NodeVars: " << NodeVars.size() << "\n";
+       std::cout << "ListParts: " << ListParts.size() << "\n";
+       std::cout << "NodeCuts: " << NodeCuts.size() << "\n";
+       std::cout << "BinCuts: " << BinCuts.size() << "\n";
+       std::cout << "ObjectCuts: " << ObjectCuts.size() << "\n";
+       std::cout << "NameInitializations: " << NameInitializations.size() << "\n";
+       std::cout << "TRGValues: " << TRGValues.size() << "\n";
+       std::cout << "ListTables: " << ListTables.size() << "\n";
+       std::cout << "cntHistos: " << cntHistos.size() << "\n";
+       std::cout << "systmap: " << systmap.size() << "\n";
 
        // cout <<"==Parsing started:\t";
        // retval=yyparse(&parts,&NodeVars,&ListParts,&NodeCuts, &BinCuts, &ObjectCuts, &NameInitializations, &TRGValues, &ListTables, &cntHistos, &systmap);

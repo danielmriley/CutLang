@@ -59,6 +59,7 @@ namespace adl {
     int addRegion(std::string id);
     int addDefine(std::string id);
     std::string getObjectDeclType(std::string s);
+    std::string getVarNodeType(std::string vn);
 
     int checkObjectTable(std::string id);
     int checkDefinitionTable(std::string id);
