@@ -837,7 +837,24 @@ namespace adl {
     int cutcount = 0;
     for(auto& s: stmnts) {
       CommandNode* cn = getCommandNode(s);
-    //  if(cn->getToken() == "SELECT") {
+      DEBUG("COMMAND: " << cn->getToken() << "\n");
+      if(cn->getToken() == "HISTO") {
+        HistoNode* hn = getHistoNode(cn);
+        ExprVector params = hn->getParams();
+        DEBUG("PARAMS.SIZE(): " << params.size() << "\n");
+        if(params.size() == 4) {
+          DEBUG("MAKING HISTO1D\n");
+          Node* node = new HistoNode1D(hn->getId(), hn->getDescription(), params[3]->value(), params[2]->value(), params[1]->value(), makeNode(params[0]));
+          NodeCuts->insert(std::make_pair(++cutcount, node));
+        }
+        if(params.size() == 8) {
+          DEBUG("MAKING HISTO2D\n");
+          Node* node = new HistoNode2D(hn->getId(), hn->getDescription(), params[7]->value(), params[6]->value(), params[5]->value(), params[4]->value(), params[3]->value(), params[2]->value(), makeNode(params[1]), makeNode(params[0]));
+          NodeCuts->insert(std::make_pair(++cutcount, node));
+        }
+      }
+      if(cn->getToken() == "SELECT") {
+        DEBUG("HERE" << std::endl);
         Expr* cond = cn->getCondition();
         if(checkRegionTable(cond->getId()) == 0) {
           continue;
@@ -847,7 +864,7 @@ namespace adl {
         node = makeNode(cond);
         if(node == nullptr) DEBUG("inserted a NULLPTR\n");
         NodeCuts->insert(std::make_pair(++cutcount, node));
-      //}
+      }
     }
   }
 

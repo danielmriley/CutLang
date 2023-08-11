@@ -47,6 +47,10 @@ namespace adl {
     return static_cast<CommandNode*>(expr);
   }
 
+  HistoNode* getHistoNode(Expr* expr) {
+    return static_cast<HistoNode*>(expr);
+  }
+
   ITENode* getITENode(Expr* expr) {
     return static_cast<ITENode*>(expr);
   }
@@ -331,38 +335,38 @@ namespace adl {
   }
 
   std::string typeCheck(Expr* node, Driver& drv) {
+    std::string type = "UNKNOWN";
     if(binOpCheck(node) == 0) {
       typeCheck(getBinNode(node)->getLHS(),drv);
       typeCheck(getBinNode(node)->getRHS(),drv);
     }
 
-    DEBUG( "typecheck token: " << node->getToken() << "\n");
-    if(node->getToken() == "INT") { DEBUG( " : INTEGER\n"); return node->getToken(); }
-    if(node->getToken() == "REAL") { DEBUG( " : DOUBLE\n"); }
+    DEBUG("typecheck token: " << node->getToken() << "\n");
+    if(node->getToken() == "INT") { DEBUG(" : INTEGER\n"); return node->getToken(); }
+    if(node->getToken() == "REAL") { DEBUG(" : DOUBLE\n"); return node->getToken(); }
     if(node->getToken() == "ID") {
-      DEBUG( "VAR := " << node->getId() << " \n");
+      DEBUG("VAR := " << node->getId() << " \n");
       VarNode* vn = getVarNode(node);
       if(vn->getType() == "") {
-        DEBUG( "vn type empty\n");
-        for(auto& obj: drv.objectTable) {
-          if(obj.first == vn->getId()) {
-            vn->setType(obj.second);
-          }
-        }
-        DEBUG( "Type set: " << vn->getType() << "\n");
+        DEBUG("vn type empty\n");
+        vn->setType(drv.findDep(vn->getId()));
+        DEBUG("Type set: " << vn->getType() << "\n");
+        type = vn->getType();
       }
       else {
-        DEBUG( "Type Found: " << vn->getType() << "\n");
+        DEBUG("Type Found: " << vn->getType() << "\n");
+        type = vn->getType();
       }
     }
     if(node->getToken() == "FUNCTION") {
       // Here the function input and output should be checked.
-      DEBUG( "FUNCTION NODE\n");
+      DEBUG("FUNCTION NODE\n");
     }
-    return "UNKNOWN\n";
+    return type;
   }
 
   int typeCheck(Driver& drv) {
+    std::string type;
     for(auto& v: drv.ast) {
       std::string token = v->getToken();
       DEBUG( "TypeCheck token: " << token << "\n");
@@ -372,11 +376,12 @@ namespace adl {
         Expr* body = define->getBody();
         if(binOpCheck(body) == 0) {
           BinNode* bin = getBinNode(body);
-          typeCheck(bin->getLHS(),drv);
-          typeCheck(bin->getRHS(),drv);
+          type = typeCheck(bin->getLHS(),drv);
+          type = typeCheck(bin->getRHS(),drv);
+          drv.dependencyChart[type].push_back(define->getId());
         }
         if(body->getToken() == "FUNCTION") {
-          typeCheck(body,drv);
+          type = typeCheck(body,drv);
 
         }
       }
@@ -435,7 +440,7 @@ namespace adl {
     Expr* lhs = b->getLHS();
     Expr* rhs = b->getRHS();
     DEBUG( "binOp: " << b->getOp() << "\n");
-    int res;
+    int res = 0;
     int fres = 0;
 
     DEBUG( "LHS TOKEN: " << lhs->getToken() << "\n");
@@ -506,7 +511,7 @@ namespace adl {
 //          if(s->getToken() == "histo") continue;
           Expr* cond = static_cast<CommandNode*>(s)->getCondition();
           DEBUG( "cond->getId(): " << cond->getId() << "\n");
-          if(s->getId() == "" || checkTables(drv,cond) == 0) { DEBUG( "continuing\n"); continue; }
+          if(s->getId() == "" || toupper(s->getToken()) == "HISTO" || checkTables(drv,cond) == 0) { DEBUG( "continuing\n"); continue; }
           if(binOpCheck(cond) == 0) {
             BinNode* bin = getBinNode(cond);
             res = parseBinNode(drv, bin);
